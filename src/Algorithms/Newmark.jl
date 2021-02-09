@@ -1,0 +1,105 @@
+"""
+    Newmark{N} <: AbstractIntegrationAlgorithm
+
+Houbolt's integration scheme with given step-size and parameters `α` and `δ`.
+
+### Fields
+
+- `Δt` -- step-size
+- `α`  -- parameter α of the method
+- `δ`  -- parameter δ of the method
+"""
+struct Newmark{N} <: AbstractIntegrationAlgorithm
+    Δt::N
+    α::N
+    δ::N
+end
+
+function Newmark(; Δt::T, α::A, δ::D, check=true) where {T, A, D}
+    N = promote_type(T, A, D)
+
+    # consistency checks
+    if check
+        δ ≥ 0.5 || throw(ArgumentError("expected the parameter δ to be at least 1/2, but it is $δ"))
+        μ = (1/2 + δ)^2 / 4
+        α ≥ μ || throw(ArgumentError("expected the parameter α to be at least $μ, but it is $α"))
+    end
+    return Newmark(N(Δt), N(α), N(δ))
+end
+
+# notable special cases
+
+"""
+    Linear(Δt::N)
+
+Linear integration scheme. Special case of Newmark with ``δ=1/2`` and ``α=1/6``.
+"""
+Linear(Δt::N) where N = Newmark(Δt=Δt, δ=1/2, α=1/6, check=false)
+Linear(; Δt::N) where N = Linear(Δt)
+
+"""
+    Trapezoidal(Δt::N)
+
+Trapezoidal integration scheme. Special case of Newmark with ``δ=1/2`` and ``α=1/4``.
+"""
+Trapezoidal(Δt::N) where N = Newmark(Δt=Δt, δ=1/2, α=1/4)
+Trapezoidal(; Δt::N) where N = Trapezoidal(Δt)
+
+function init(alg::Newmark, M, C, K)
+    Δt = alg.Δt
+    α = alg.α
+    δ = alg.δ
+
+    # compute integration constants
+    ξ = 1 / (α * Δt)
+    a₀ = ξ/Δt
+    a₁ = δ*ξ
+    a₂ = ξ
+    a₃ = 1/(2α) - 1
+    a₄ = δ/α - 1
+    a₅ = (Δt/2) * (a₄-1)
+    a₆ = Δt*(1-δ)
+    a₇ = δ*Δt
+
+    K̂ = K + a₀ * M + a₁ * C
+
+    return a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂
+end
+
+function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
+               alg::Newmark{N},
+               NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
+
+    sys = system(ivp)
+    (U₀, U₀′) = initial_state(ivp)
+
+    IMAX = NSTEPS + 1
+    M, C, K, R = _unwrap(sys, IMAX)
+
+    U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
+    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = init(alg, M, C, K)
+    K̂⁻¹ = inv(K̂)
+
+    # initialize displacements, velocities and accelerations
+    U = Vector{VT}(undef, IMAX)
+    U′ = Vector{VT}(undef, IMAX)
+    U′′ = Vector{VT}(undef, IMAX)
+    U[1] = U₀
+    U′[1] = U₀′
+    U′′[1] = U₀′′
+
+    @inbounds for i in 1:NSTEPS
+        # calculate effective loads
+        mᵢ = M * (a₀ * U[i] + a₂ * U′[i] + a₃ * U′′[i])
+        cᵢ = C * (a₁ * U[i] + a₄ * U′[i] + a₅ * U′′[i])
+        R̂ᵢ₊₁ = R[i+1] + mᵢ + cᵢ
+
+        # solve for displacements
+        U[i+1] = K̂⁻¹ * R̂ᵢ₊₁
+
+        # calculate accelerations and velocities
+        U′′[i+1] = a₀ * (U[i+1] - U[i]) - a₂ * U′[i] - a₃ * U′′[i]
+        U′[i+1] = U′[i] + a₆ * U′′[i] + a₇ * U′′[i+1]
+    end
+    return IntegrationSolution(alg, U, U′, U′′)
+end
