@@ -1,6 +1,6 @@
 # StructuralDynamicsODESolvers.jl
 
-This package is a (just staring) Julia implementation of common ODE solvers for
+This package is a (just starting) Julia implementation of common ODE solvers for
 structural dynamics problems.
 
 ## Features
