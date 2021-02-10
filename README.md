@@ -12,7 +12,7 @@ The following solvers for linear dynamic equations are available:
 - Houbolt [HOU50] 
 - Newmark [NEW509]
 
-## Example (not available yet)
+## Example (not working yet)
 
 ```julia
 using StructuralDynamicsODESolvers
