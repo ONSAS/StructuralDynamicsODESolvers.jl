@@ -12,6 +12,20 @@ The following solvers for linear dynamic equations are available:
 - Houbolt [HOU50] 
 - Newmark [NEW509]
 
+## Example
+
+```julia
+using StructuralDynamicsODESolvers
+
+prob = @ivp(x'' = -x, x(0) = 1.0, x'(0) = 0.0)
+
+sol = solve(prob, tspan=(0.0, 4.0), alg=Bathe(δ=0.05))
+
+using Plots
+
+plot(sol, vars=(0, 1), xlab="t", ylab="x(t)")
+```
+
 ## Related libraries
 
 This package has been created for research purposes. If you are new to numerically solving differential equations in Julia, we strongly suggest that you use the [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/) suite. 
