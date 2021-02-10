@@ -27,6 +27,8 @@ function _solve(alg::BackwardEuler{N},
     sys = system(ivp)
     (U₀, _) = initial_state(ivp)
 
+    iszero(M) || throw(ArgumentError("this method assumes that the system is of first order"))
+
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
 
