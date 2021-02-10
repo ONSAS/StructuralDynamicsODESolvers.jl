@@ -1,5 +1,11 @@
 # StructuralDynamicsODESolvers.jl
 
+[![Build Status](https://github.com/ONSAS/StructuralDynamicsODESolvers.jl/workflows/CI/badge.svg)](https://github.com/ONSAS/StructuralDynamicsODESolvers.jl/actions?query=workflow%3ACI)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://onsas.github.io/StructuralDynamicsODESolvers.jl/dev/)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ONSAS/StructuralDynamicsODESolvers.jl/blob/master/LICENSE)
+[![Join the chat at https://gitter.im/ONSAS_/community](https://badges.gitter.im/ONSAS_/community.svg)](https://gitter.im/ONSAS_/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
 This package contains pure Julia implementations of ordinary differential equations (ODE) solvers for
 structural dynamics problems.
 
