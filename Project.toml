@@ -1,8 +1,6 @@
 name = "StructuralDynamicsODESolvers"
 uuid = "5837384c-0389-41f0-a8dd-204a40e5dede"
-authors = ["jorgepz <jorgepz@fing.edu.uy>",
-           "mforets  <mforets@gmail.com>",
-           "dfcaporale  <dfcaporale@gmail.com>"]
+authors = ["jorgepz <jorgepz@fing.edu.uy>", "mforets  <mforets@gmail.com>", "dfcaporale  <dfcaporale@gmail.com>"]
 version = "0.1.0"
 
 [deps]
@@ -12,7 +10,7 @@ MathematicalSystems = "d14a8603-c872-5ed3-9ece-53e0e82e39da"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
-FillArrays = "0.10"
+FillArrays = "0.10, 0.11"
 MathematicalSystems = "0.11"
 Reexport = "0.2, 1.0"
 julia = "1"
