@@ -77,9 +77,10 @@ end
     @test abs(sol[13][2] - 2.40) < 5e-3
 end
 
-@testset "BackwardEuler method" begin
-    U₀ = zeros(2)
-    alg = BackwardEuler(Δt=0.1)
-
-  @test abs(0) < 1e-3
-end
+# @testset "BackwardEuler method" begin
+#     U₀ = zeros(2)
+#     alg = BackwardEuler(Δt=0.1)
+#     prob = InitialValueProblem(example_9_1_Bathe, (U₀))
+#
+#   @test abs(0) < 1e-3
+# end
