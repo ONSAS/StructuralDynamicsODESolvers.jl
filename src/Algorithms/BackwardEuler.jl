@@ -30,7 +30,6 @@ function _solve(alg::BackwardEuler{N},
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
 
-    U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
     K̂ = _init(alg, M, C, K)
     K̂⁻¹ = inv(K̂)
 
