@@ -5,11 +5,20 @@ structural dynamics problems.
 
 ## Features
 
-- Solvers for linear dynamic equations `Mx''(t) + Cx'(t) + Kx(t) = F(t)`
+The following solvers for linear dynamic equations are available:
 
-    - Central difference
-    - Houbolt
-    - Newmark
-    - Bathe
+- Bathe (equal size sub-steps) [BAT07]
+- Central difference
+- Houbolt [HOU50] 
+- Newmark [NEW509]
+
+## Related libraries
+
+This package has been created for research purposes. If you are new to numerically solving differential equations in Julia, we strongly suggest that you use the [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/) suite. 
 
 ## References
+
+
+- [BAT07] Bathe, Klaus-Jürgen. "Conserving energy and momentum in nonlinear dynamics: a simple implicit time integration scheme." Computers & structures 85.7-8 (2007): 437-445.
+- [NEW59] Newmark, Nathan M. "A method of computation for structural dynamics." Journal of the engineering mechanics division 85.3 (1959): 67-94.
+- [HOU50] [HOU50] Houbolt, John C. "A recurrence matrix solution for the dynamic response of elastic aircraft." Journal of the Aeronautical Sciences 17.9 (1950): 540-550.
