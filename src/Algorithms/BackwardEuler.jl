@@ -12,9 +12,7 @@ struct BackwardEuler{N} <: AbstractSolver
     Δt::N
 end
 
-# function BackwardEuler(; Δt::T) where {T}
-#     return BackwardEuler( N(Δt) )
-# end
+BackwardEuler(; Δt::T) where N = BackwardEuler(Δt)
 
 function _init(alg::BackwardEuler, M, C, K)
     Δt = alg.Δt
