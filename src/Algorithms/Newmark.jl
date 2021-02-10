@@ -1,15 +1,19 @@
 """
-    Newmark{N} <: AbstractIntegrationAlgorithm
+$(TYPEDEF)
 
-Houbolt's integration scheme with given step-size and parameters `α` and `δ`.
+Newmark's integration scheme with given step-size and parameters `α` and `δ`.
 
 ### Fields
 
 - `Δt` -- step-size
 - `α`  -- parameter α of the method
 - `δ`  -- parameter δ of the method
+
+### References
+
+See [[NEW59]](@ref).
 """
-struct Newmark{N} <: AbstractIntegrationAlgorithm
+struct Newmark{N} <: AbstractSolver
     Δt::N
     α::N
     δ::N
@@ -45,7 +49,7 @@ Trapezoidal integration scheme. Special case of Newmark with ``δ=1/2`` and ``α
 Trapezoidal(Δt::N) where N = Newmark(Δt=Δt, δ=1/2, α=1/4)
 Trapezoidal(; Δt::N) where N = Trapezoidal(Δt)
 
-function init(alg::Newmark, M, C, K)
+function _init(alg::Newmark, M, C, K)
     Δt = alg.Δt
     α = alg.α
     δ = alg.δ
@@ -66,9 +70,9 @@ function init(alg::Newmark, M, C, K)
     return a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂
 end
 
-function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
-               alg::Newmark{N},
-               NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
+function _solve(alg::Newmark{N},
+                ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
+                NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)
@@ -77,7 +81,7 @@ function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, 
     M, C, K, R = _unwrap(sys, IMAX)
 
     U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
-    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = init(alg, M, C, K)
+    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
     K̂⁻¹ = inv(K̂)
 
     # initialize displacements, velocities and accelerations
@@ -101,5 +105,11 @@ function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, 
         U′′[i+1] = a₀ * (U[i+1] - U[i]) - a₂ * U′[i] - a₃ * U′′[i]
         U′[i+1] = U′[i] + a₆ * U′′[i] + a₇ * U′′[i+1]
     end
-    return IntegrationSolution(alg, U, U′, U′′)
+
+    return _build_solution(alg, U, U′, U′′, NSTEPS)
+end
+
+function _build_solution(alg::Newmark{N}, U, U′, U′′, NSTEPS) where {N}
+    t = range(zero(N), step=alg.Δt, length=NSTEPS)
+    return Solution(alg, U, U′, U′′, t)
 end

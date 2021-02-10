@@ -29,8 +29,7 @@ example_9_1_Bathe = SecondOrderAffineContinuousSystem(M, C, K, R)
     prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
-    NSTEPS = 12
-    sol = solve(prob, alg, NSTEPS) |> displacements
+    sol = solve(prob, alg, NSTEPS=12) |> displacements
 
     @test abs(sol[13][1] - 1.02) < 5e-3
     @test abs(sol[13][2] - 2.60) < 5e-3
@@ -44,8 +43,7 @@ end
     prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
-    NSTEPS = 12
-    sol = solve(prob, alg, NSTEPS) |> displacements
+    sol = solve(prob, alg, NSTEPS=12) |> displacements
 
     @test abs(sol[13][1] - 1.72) < 5e-3
     @test abs(sol[13][2] - 2.28) < 5e-3
@@ -59,8 +57,7 @@ end
     prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
-    NSTEPS = 12
-    sol = solve(prob, alg, NSTEPS) |> displacements
+    sol = solve(prob, alg, NSTEPS=12) |> displacements
 
     @test abs(sol[13][1] - 1.40) < 5e-3
     @test abs(sol[13][2] - 2.31) < 5e-3
@@ -74,8 +71,7 @@ end
     prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
-    NSTEPS = 12
-    sol = solve(prob, alg, NSTEPS) |> displacements
+    sol = solve(prob, alg, NSTEPS=12) |> displacements
 
     @test abs(sol[13][1] - 1.28) < 5e-3
     @test abs(sol[13][2] - 2.40) < 5e-3

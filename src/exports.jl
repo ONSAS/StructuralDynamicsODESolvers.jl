@@ -10,4 +10,5 @@ export Bathe,
 export solve,
        displacements,
        velocities,
-       accelerations
+       accelerations,
+       times
