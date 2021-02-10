@@ -76,3 +76,10 @@ end
     @test abs(sol[13][1] - 1.28) < 5e-3
     @test abs(sol[13][2] - 2.40) < 5e-3
 end
+
+@testset "BackwardEuler method" begin
+    U₀ = zeros(2)
+    alg = BackwardEuler(Δt=0.1)
+
+  @test abs(0) < 1e-3
+end
