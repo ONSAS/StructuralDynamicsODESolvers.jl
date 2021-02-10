@@ -1,21 +1,27 @@
 """
-    Bathe{N} <: AbstractIntegrationAlgorithm
+$(TYPEDEF)
 
-Bathe's integration scheme with given step-size and equal
+Bathe's integration scheme with sub-steps of equal size.
 
 ### Fields
 
 - `Δt` -- step-size
 - `α`  -- parameter α of the method
 - `δ`  -- parameter δ of the method
+
+### References
+
+See [[BAT07]](@ref).
 """
-struct Bathe{N} <: AbstractIntegrationAlgorithm
+struct Bathe{N} <: AbstractSolver
     Δt::N
 end
 
 Bathe(; Δt::N) where {N} = Bathe(Δt)
 
-function init(alg::Bathe, M, C, K)
+step_size(alg::Bathe) = alg.Δt
+
+function _init(alg::Bathe, M, C, K)
     Δt = alg.Δt
 
     # compute integration constants
@@ -37,9 +43,9 @@ end
 
 # a comment about notation: variables with superscript `+` correspond to
 # evaluation at intermediate times, i.e. t + Δt/2
-function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
-               alg::Bathe{N},
-               NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
+function _solve(alg::Bathe{N},
+                ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
+                NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)
@@ -48,7 +54,7 @@ function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, 
     M, C, K, R = _unwrap(sys, IMAX)
 
     U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
-    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂₁, K̂₂ = init(alg, M, C, K)
+    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂₁, K̂₂ = _init(alg, M, C, K)
     K̂₁⁻¹ = inv(K̂₁)
     K̂₂⁻¹ = inv(K̂₂)
 
@@ -93,5 +99,11 @@ function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, 
         U′[i+1] = -a₇ * U[i] - a₁ * Uᵢ⁺ + a₃ * U[i+1]
         U′′[i+1] = -a₇ * U′[i] - a₁ * U′ᵢ⁺ + a₃ * U′[i+1]
     end
-    return IntegrationSolution(alg, U, U′, U′′)
+
+    return _build_solution(alg, U, U′, U′′, NSTEPS)
+end
+
+function _build_solution(alg::Bathe{N}, U, U′, U′′, NSTEPS) where {N}
+    t = range(zero(N), step=alg.Δt, length=NSTEPS)
+    return Solution(alg, U, U′, U′′, t)
 end

@@ -1,5 +1,5 @@
 """
-    CentralDifference{N} <: AbstractIntegrationAlgorithm
+$(TYPEDEF)
 
 Central difference scheme with given step-size.
 
@@ -7,13 +7,13 @@ Central difference scheme with given step-size.
 
 - `Δt` -- step-size
 """
-struct CentralDifference{N} <: AbstractIntegrationAlgorithm
+struct CentralDifference{N} <: AbstractSolver
     Δt::N
 end
 
 CentralDifference(; Δt::N) where N = CentralDifference(Δt)
 
-function init(alg::CentralDifference, M, C, K, U₀, U₀′, U₀′′)
+function _init(alg::CentralDifference, M, C, K, U₀, U₀′, U₀′′)
     Δt = alg.Δt
 
     # compute integration constants
@@ -28,17 +28,9 @@ function init(alg::CentralDifference, M, C, K, U₀, U₀′, U₀′′)
     return a₀, a₁, a₂, U⁻, M̂
 end
 
-
-"""
-    solve(ivp::InitialValueProblem, alg, args..; kwargs...)
-
-Solve an initial-value problem.
-"""
-function solve end
-
-function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
-               alg::CentralDifference{N},
-               NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
+function _solve(alg::CentralDifference{N},
+                ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
+                NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)
@@ -46,7 +38,7 @@ function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, 
     M, C, K, R = _unwrap(sys, IMAX)
 
     U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
-    a₀, a₁, a₂, U⁻, M̂ = init(alg, M, C, K, U₀, U₀′, U₀′′)
+    a₀, a₁, a₂, U⁻, M̂ = _init(alg, M, C, K, U₀, U₀′, U₀′′)
     M̂⁻¹ = inv(M̂)
 
     U = Vector{VT}(undef, IMAX+1)
@@ -57,5 +49,11 @@ function solve(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, 
         R̂ᵢ = R[i] - (K - a₂ * M) * U[i] - (a₀*M - a₁*C) * U[i-1]
         U[i+1] = M̂⁻¹ * R̂ᵢ
     end
-    return IntegrationSolution(alg, view(U, 2:IMAX+1))
+
+    return _build_solution(alg, view(U, 2:IMAX+1), NSTEPS)
+end
+
+function _build_solution(alg::CentralDifference{N}, U, NSTEPS) where {N}
+    t = range(zero(N), step=alg.Δt, length=NSTEPS)
+    return Solution(alg, U, nothing, nothing, t)
 end

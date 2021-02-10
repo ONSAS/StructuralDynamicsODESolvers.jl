@@ -20,7 +20,7 @@ Chapter 9, [[BATHE]](@ref).
 ## Abstract interface
 
 ```@docs
-StructuralDynamicsODESolvers.AbstractIntegrationAlgorithm
+StructuralDynamicsODESolvers.AbstractSolver
 ```
 
 ## Algorithms
@@ -39,7 +39,7 @@ Trapezoidal
 
 ```@docs
 AbstractSolution
-IntegrationSolution
+Solution
 step_size
 solve
 displacements
@@ -81,7 +81,7 @@ U(t) = A * [x₁(t), x₂(t)]
 # ------------------------
 # Central difference
 # ------------------------
-sol = solve(prob, CentralDifference(Δt=0.1), NSTEPS) |> displacements
+sol = solve(prob, CentralDifference(Δt=0.1); NSTEPS=NSTEPS) |> displacements
 ind = 150:170
 fig = plot(xlab="time", ylab="x1(t)", legend=:outertopright)
 fig2 = plot(xlab="time", ylab="x1(t)", legend=:outertopright)
@@ -91,21 +91,21 @@ plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Central difference")
 # ------------------------
 # Houbolt
 # ------------------------
-sol = solve(prob, Houbolt(Δt=0.1), NSTEPS) |> displacements
+sol = solve(prob, Houbolt(Δt=0.1); NSTEPS=NSTEPS) |> displacements
 plot!(fig, tdom, [s[1] for s in sol], lab="Houbolt")
 plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Houbolt")
 
 # ------------------------
 # Newmark
 # ------------------------
-sol = solve(prob, Trapezoidal(Δt=0.1), NSTEPS) |> displacements
+sol = solve(prob, Trapezoidal(Δt=0.1); NSTEPS=NSTEPS) |> displacements
 plot!(fig, tdom, [s[1] for s in sol], lab="Newmark")
 plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Newmark")
 
 # ------------------------
 # Bathe
 # ------------------------
-sol = solve(prob, Bathe(Δt=0.1), NSTEPS) |> displacements
+sol = solve(prob, Bathe(Δt=0.1); NSTEPS=NSTEPS) |> displacements
 plot!(fig, tdom, [s[1] for s in sol], lab="Bathe")
 plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Bathe")
 
