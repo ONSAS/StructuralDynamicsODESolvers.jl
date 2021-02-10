@@ -77,10 +77,16 @@ end
     @test abs(sol[13][2] - 2.40) < 5e-3
 end
 
-# @testset "BackwardEuler method" begin
-#     U₀ = zeros(2)
-#     alg = BackwardEuler(Δt=0.1)
-#     prob = InitialValueProblem(example_9_1_Bathe, (U₀))
-#
-#   @test abs(0) < 1e-3
-# end
+@testset "BackwardEuler method" begin
+
+    C = [1. 0; 0 1.]
+    K = [1 -1; -1 1]
+    M = zeros(2, 2)
+    R = [0, 1.]
+    alg = BackwardEuler(Δt=0.1)
+    heatTransferProblem = SecondOrderAffineContinuousSystem(M, C, K, R)
+
+    U₀ = zeros(2)
+    prob = InitialValueProblem( heatTransferProblem, (U₀,U₀) )
+    @test abs(0) < 1e-3
+end
