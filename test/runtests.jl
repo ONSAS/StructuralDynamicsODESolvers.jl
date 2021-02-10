@@ -83,10 +83,18 @@ end
     K = [1. -1.; -1. 1.]
     M = zeros(2, 2)
     R = [0., 1.]
+
+    # struct system
     heatTransferProblem = SecondOrderAffineContinuousSystem(M, C, K, R)
+
+    # struct algorithm
     alg = BackwardEuler(Δt=0.1)
 
     U₀ = zeros(2)
+
+    # struct ivp
     prob = InitialValueProblem( heatTransferProblem, (U₀,U₀) )
+
+    sol = solve(prob, alg, NSTEPS=12) |> displacements
     @test abs(0) < 1e-3
 end

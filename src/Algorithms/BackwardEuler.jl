@@ -12,7 +12,7 @@ struct BackwardEuler{N} <: AbstractSolver
     Δt::N
 end
 
-BackwardEuler(; Δt::T) where N = BackwardEuler(Δt)
+BackwardEuler(; Δt::N) where N = BackwardEuler(Δt)
 
 function _init(alg::BackwardEuler, M, C, K)
     Δt = alg.Δt
@@ -27,10 +27,10 @@ function _solve(alg::BackwardEuler{N},
     sys = system(ivp)
     (U₀, _) = initial_state(ivp)
 
-    iszero(M) || throw(ArgumentError("this method assumes that the system is of first order"))
-
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
+
+    iszero(M) || throw(ArgumentError("this method assumes that the system is of first order"))
 
     K̂ = _init(alg, M, C, K)
     K̂⁻¹ = inv(K̂)
