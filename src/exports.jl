@@ -4,6 +4,7 @@ export Bathe,
        Houbolt,
        Linear,
        Newmark,
+       BackwardEuler,
        Trapezoidal
 
 # solution API

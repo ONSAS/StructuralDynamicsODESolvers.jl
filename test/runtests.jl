@@ -80,11 +80,11 @@ end
 @testset "BackwardEuler method" begin
 
     C = [1. 0; 0 1.]
-    K = [1 -1; -1 1]
+    K = [1. -1.; -1. 1.]
     M = zeros(2, 2)
-    R = [0, 1.]
-    alg = BackwardEuler(Δt=0.1)
+    R = [0., 1.]
     heatTransferProblem = SecondOrderAffineContinuousSystem(M, C, K, R)
+    alg = BackwardEuler(Δt=0.1)
 
     U₀ = zeros(2)
     prob = InitialValueProblem( heatTransferProblem, (U₀,U₀) )
