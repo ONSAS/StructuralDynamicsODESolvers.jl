@@ -39,6 +39,8 @@ function _solve(alg::BackwardEuler{N},
     U = Vector{VT}(undef, IMAX)
     U[1] = U₀
 
+    Δt = alg.Δt
+
     @inbounds for i in 1:NSTEPS
         R̂ᵢ₊₁ = R[i+1] * Δt + C*U[i]
         # solve
