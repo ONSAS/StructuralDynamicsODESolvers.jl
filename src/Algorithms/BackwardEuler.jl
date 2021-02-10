@@ -25,7 +25,7 @@ function _solve(alg::BackwardEuler{N},
                 NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
-    (U₀) = initial_state(ivp)
+    (U₀, _) = initial_state(ivp)
 
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
