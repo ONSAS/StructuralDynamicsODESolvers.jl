@@ -79,14 +79,21 @@ end
 
 @testset "BackwardEuler method" begin
 
-    C = [1. 0; 0 1.]
-    K = [1. -1.; -1. 1.]
+    rho = 1. ;
+    csh = 1. ;
+    kco = 4. ;
+    nelem = 3 ;
+    lelem = 1.0 / nelem ;
+    Area  = .25 ;
+
+    C = rho * csh * lelem * Area * ( [0.5+0.5+0.0 0; 0  0.0+0.5+0.5] )
+    K = kco *       lelem * Area * ( [1.0+1.0 -1.; -1. 1.0+1.0] * 1.0 / lelem^2 )
     M = zeros(2, 2)
-    R = [0., 1.]
+    R = zeros(2)
 
     # struct system
     heatTransferProblem = SecondOrderAffineContinuousSystem(M, C, K, R)
-
+print(heatTransferProblem)
     # struct algorithm
     alg = BackwardEuler(Δt=0.1)
 
@@ -96,5 +103,6 @@ end
     prob = InitialValueProblem( heatTransferProblem, (U₀,U₀) )
 
     sol = solve(prob, alg, NSTEPS=12) |> displacements
+    print( sol[13] )
     @test abs(0) < 1e-3
 end
