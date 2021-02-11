@@ -17,6 +17,7 @@ The following solvers for linear dynamic equations are available:
 - Central difference
 - Houbolt [HOU50] 
 - Newmark [NEW509]
+- Backward Euler (for first order systems)
 
 ## Example (not working yet)
 
