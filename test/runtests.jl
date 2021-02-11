@@ -21,6 +21,20 @@ C = zeros(2, 2)
 R = [0, 10.]
 example_9_1_Bathe = SecondOrderAffineContinuousSystem(M, C, K, R)
 
+# heat problem formulation
+rho = 1. ;
+csh = 1. ;
+kco = 4. ;
+nelem = 3 ;
+lelem = 1.0 / nelem ;
+Area  = .25 ;
+C = rho * csh * lelem * Area * ( [0.5+0.5+0.0 0; 0  0.0+0.5+0.5] )
+K = kco *       lelem * Area * ( [1.0+1.0 -1.; -1. 1.0+1.0] * 1.0 / lelem^2 )
+M = zeros(2, 2)
+R = zeros(2)
+# struct problem
+heatTransferProblem = SecondOrderAffineContinuousSystem(M, C, K, R)
+
 @testset "Central difference method" begin
     # Ref. Example 9.1 pp. 773-774
     U₀ = zeros(2)
@@ -75,4 +89,28 @@ end
 
     @test abs(sol[13][1] - 1.28) < 5e-3
     @test abs(sol[13][2] - 2.40) < 5e-3
+end
+
+@testset "BackwardEuler method" begin
+
+    U₀ = zeros(2)
+    for j=1:(nelem+1-2)
+      U₀[j] =  sin( pi*lelem*j ) + 0.5 * sin( 3.0*pi*lelem*j )
+    end
+    testΔt = 0.0001
+    # struct algorithm
+    alg = BackwardEuler(Δt=testΔt)
+
+    # struct ivp
+    prob = InitialValueProblem( heatTransferProblem, (U₀,U₀) )
+
+    α = kco / ( rho * csh )
+
+    sol = solve(prob, alg, NSTEPS=12) |> displacements
+
+    j=1
+    analyticVal = exp(-pi^2 * α * 12*testΔt ) * sin( pi*lelem*j ) + 0.5 * exp(-(3*pi)^2 * α * 12*testΔt ) * sin( 3.0*pi*lelem*j )
+
+    # relative error at node 1 verification
+    @test ( abs( sol[13][1] - analyticVal ) / abs( analyticVal ) ) < 5e-3
 end
