@@ -1,12 +1,7 @@
-example_9_1_Bathe = oscillator()
-heatTransferProblem = heat_transfer()
-
 @testset "Central difference method" begin
     # Ref. Example 9.1 pp. 773-774
-    U₀ = zeros(2)
-    U₀′ = zeros(2)
+    prob, U = example_9_1_Bathe()
     alg = CentralDifference(Δt=0.28)
-    prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
     sol = solve(prob, alg, NSTEPS=12) |> displacements
@@ -17,10 +12,8 @@ end
 
 @testset "Houbolt method" begin
     # Ref. Example 9.2 pp. 776-777
-    U₀ = zeros(2)
-    U₀′ = zeros(2)
+    prob, U = example_9_1_Bathe()
     alg = Houbolt(Δt=0.28)
-    prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
     sol = solve(prob, alg, NSTEPS=12) |> displacements
@@ -31,10 +24,8 @@ end
 
 @testset "Newmark method" begin
     # Ref. Example 9.3 pp. 778-779
-    U₀ = zeros(2)
-    U₀′ = zeros(2)
+    prob, U = example_9_1_Bathe()
     alg = Newmark(Δt=0.28, α=0.25, δ=0.5)
-    prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
     sol = solve(prob, alg, NSTEPS=12) |> displacements
@@ -45,10 +36,8 @@ end
 
 @testset "Bathe method" begin
     # Ref. Example 9.4 pp. 781-782
-    U₀ = zeros(2)
-    U₀′ = zeros(2)
+    prob, U = example_9_1_Bathe()
     alg = Bathe(Δt=0.28)
-    prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 
     # solution
     sol = solve(prob, alg, NSTEPS=12) |> displacements
@@ -58,25 +47,14 @@ end
 end
 
 @testset "BackwardEuler method" begin
+    prob, U = heat_transfer()
 
-    U₀ = zeros(2)
-    for j=1:(nelem+1-2)
-      U₀[j] =  sin( pi*lelem*j ) + 0.5 * sin( 3.0*pi*lelem*j )
-    end
     testΔt = 0.0001
-    # struct algorithm
     alg = BackwardEuler(Δt=testΔt)
-
-    # struct ivp
-    prob = InitialValueProblem( heatTransferProblem, (U₀,U₀) )
-
-    α = kco / ( rho * csh )
 
     sol = solve(prob, alg, NSTEPS=12) |> displacements
 
-    j=1
-    analyticVal = exp(-pi^2 * α * 12*testΔt ) * sin( pi*lelem*j ) + 0.5 * exp(-(3*pi)^2 * α * 12*testΔt ) * sin( 3.0*pi*lelem*j )
-
     # relative error at node 1 verification
+    analyticVal = U(testΔt)
     @test ( abs( sol[13][1] - analyticVal ) / abs( analyticVal ) ) < 5e-3
 end
