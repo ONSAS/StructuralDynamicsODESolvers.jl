@@ -21,6 +21,10 @@ The following solvers for linear dynamic equations are available:
 
 ## Example (not working yet)
 
+(See the [Example](https://onsas.github.io/StructuralDynamicsODESolvers.jl/dev/lib/example/) section of the documentation for an example which works)
+
+The following user interface is planned:
+
 ```julia
 using StructuralDynamicsODESolvers
 
