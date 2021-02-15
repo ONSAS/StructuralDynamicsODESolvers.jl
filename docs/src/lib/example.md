@@ -3,54 +3,9 @@ DocTestSetup = :(using StructuralDynamicsODESolvers)
 CurrentModule = StructuralDynamicsODESolvers
 ```
 
-# Direct integration methods
+# [Example](@id sec_example)
 
-This section describes direct integration methods for linear dynamic equations
-of the form
-
-```math
-    Mx''(t) + Cx'(t) + Kx(t) = f(t)
-```
-
-The methods available are the standard central difference method, Houbolt's method,
-Newmark's method, and the Bathe integration method with equal-size substeps
-($\gamma = 0.5$). The theoretical description of these methods can be found in
-Chapter 9, [[BATHE]](@ref).
-
-## Abstract interface
-
-```@docs
-StructuralDynamicsODESolvers.AbstractSolver
-```
-
-## Algorithms
-
-```@docs
-Bathe
-CentralDifference
-Houbolt
-Linear
-Newmark
-Trapezoidal
-```
-
-## Solve interface
-
-
-```@docs
-AbstractSolution
-Solution
-step_size
-solve
-displacements
-velocities
-accelerations
-```
-
-## Comparison
-
-The examples in this file can be found in Chapter 9,  Finite Element Procedures, K-J Bathe
-[[BATHE]](@ref).
+The example considered next can be found in Chapter 9 of [[BATHE]](@ref).
 
 ```@example example_9_1
 using StructuralDynamicsODESolvers, Plots

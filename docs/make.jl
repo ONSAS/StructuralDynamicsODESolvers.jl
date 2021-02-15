@@ -15,7 +15,10 @@ makedocs(
     strict = false,
     pages = [
         "Home" => "index.md",
-        "API Reference" => Any["Direct integration methods" => "lib/direct.md"],
+        "Algorithms" => Any["First-order problems" => "lib/first_order.md",
+                            "Second-order problems" => "lib/second_order.md"],
+        "Example" => "lib/example.md",
+        "API Reference" => "lib/api.md",
         "References" => "references.md",
         "About" => "about.md"
     ]
