@@ -51,6 +51,5 @@ function heat_transfer(; nelem=3)
     U(t) = exp(-pi^2 * α * 12*t ) * sin( pi*lelem*j ) + 0.5 * exp(-(3*pi)^2 * α * 12*t ) * sin( 3.0*pi*lelem*j )
 
     # here the velocity condition U₀′ is ignored
-    sys = SecondOrderAffineContinuousSystem(M, C, K, R)
     return InitialValueProblem(sys, (U₀, U₀)), U
 end
