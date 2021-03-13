@@ -51,6 +51,6 @@ function _solve(alg::BackwardEuler{N},
 end
 
 function _build_solution(alg::BackwardEuler{N}, U, NSTEPS) where {N}
-    t = range(zero(N), step=alg.Δt, length=NSTEPS)
+    t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
     return Solution(alg, U, t)
 end

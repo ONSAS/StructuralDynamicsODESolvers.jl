@@ -68,6 +68,6 @@ function _solve(alg::Houbolt{N},
 end
 
 function _build_solution(alg::Houbolt{N}, U, NSTEPS) where {N}
-    t = range(zero(N), step=alg.Δt, length=NSTEPS)
+    t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
     return Solution(alg, U, nothing, nothing, t)
 end
