@@ -15,31 +15,45 @@ The following solvers for linear dynamic equations are available:
 
 - Bathe (equal size sub-steps) [BAT07]
 - Central difference
-- Houbolt [HOU50] 
+- Houbolt [HOU50]
 - Newmark [NEW509]
 - Backward Euler (for first order systems)
 
-## Example (not working yet)
+## Example
 
 (See the [Example](https://onsas.github.io/StructuralDynamicsODESolvers.jl/dev/lib/example/) section of the documentation for an example which works)
 
-The following user interface is planned:
-
 ```julia
 using StructuralDynamicsODESolvers
-
-prob = @ivp(x'' = -x, x(0) = 1.0, x'(0) = 0.0)
-
-sol = solve(prob, tspan=(0.0, 4.0), alg=Bathe(δ=0.05))
-
 using Plots
+plotly()
 
-plot(sol, vars=(0, 1), xlab="t", ylab="x(t)")
+k  = 2 ; m  = .5 ;  c = .1 ;
+u0 = 1 ; v0 = 0 ;
+
+algoritmo = Bathe(Δt = 0.1);
+nPasos = 200 ;
+
+M = m*ones(1, 1) C = c*ones(1, 1)
+K = k*ones(1, 1) R = zeros(1)
+
+sys = SecondOrderAffineContinuousSystem(M, C, K, R)
+
+U₀ = u0 * ones(1) ; V₀ = v0 * ones(1) ;
+
+prob = InitialValueProblem(sys, (U₀, V₀)) ;
+
+sol = solve(prob, algoritmo, NSTEPS=nPasos);
+
+disps = zeros(nPasos+1)
+[ disps[i] = (displacements(sol)[i][1]) for i in 1:(nPasos+1) ] ;
+
+plot(disps, xlab="time", ylab="displacement")
 ```
 
 ## Related libraries
 
-This package has been created for research purposes. If you are new to numerically solving differential equations in Julia, we strongly suggest that you use the [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/) suite. 
+This package has been created for research purposes. If you are new to numerically solving differential equations in Julia, we strongly suggest that you use the [DifferentialEquations.jl](https://diffeq.sciml.ai/dev/) suite.
 
 ## References
 
