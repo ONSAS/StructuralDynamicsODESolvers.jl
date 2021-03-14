@@ -54,6 +54,6 @@ function _solve(alg::CentralDifference{N},
 end
 
 function _build_solution(alg::CentralDifference{N}, U, NSTEPS) where {N}
-    t = range(zero(N), step=alg.Δt, length=NSTEPS)
+    t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
     return Solution(alg, U, nothing, nothing, t)
 end

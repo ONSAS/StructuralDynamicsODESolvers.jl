@@ -110,6 +110,6 @@ function _solve(alg::Newmark{N},
 end
 
 function _build_solution(alg::Newmark{N}, U, U′, U′′, NSTEPS) where {N}
-    t = range(zero(N), step=alg.Δt, length=NSTEPS)
+    t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
     return Solution(alg, U, U′, U′′, t)
 end
