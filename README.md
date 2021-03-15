@@ -21,7 +21,9 @@ The following solvers for linear dynamic equations are available:
 
 ## Example
 
-(See the [Example](https://onsas.github.io/StructuralDynamicsODESolvers.jl/dev/lib/example/) section of the documentation for an example which works)
+The following example is explained in [this notebook](https://github.com/ONSAS/StructuralDynamicsODESolvers.jl/blob/master/examples/massDashpotSpringExample.ipynb).
+
+For further examples see the [Example](https://onsas.github.io/StructuralDynamicsODESolvers.jl/dev/lib/example/) section of the documentation.
 
 ```julia
 using StructuralDynamicsODESolvers
