@@ -132,7 +132,16 @@ function _init_input(R::AbstractVector{VT}, IMAX) where {N, VT<:AbstractVector{N
 end
 
 # unwrap a second order system into its each component
-function _unwrap(sys, IMAX)
+function _unwrap(sys::SecondOrderAffineContinuousSystem, IMAX)
+    M = mass_matrix(sys)
+    C = viscosity_matrix(sys)
+    K = stiffness_matrix(sys)
+    R = affine_term(sys)
+    R = _init_input(R, IMAX)
+    return M, C, K, R
+end
+
+function _unwrap(sys::SecondOrderConstrainedLinearControlContinuousSystem, IMAX)
     M = mass_matrix(sys)
     C = viscosity_matrix(sys)
     K = stiffness_matrix(sys)
