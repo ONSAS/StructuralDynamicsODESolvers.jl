@@ -50,11 +50,29 @@ end
 Solution(alg, U, t) = Solution(alg, U, nothing, nothing, t)
 
 """
+    dim(sol::Solution)
+
+Return the ambient dimension of the state space of the solution.
+"""
+dim(sol::Solution) = length(first(sol.U))
+
+"""
     displacements(sol::Solution)
 
 Return the vector of displacements of the given solution.
 """
 displacements(sol::Solution) = sol.U
+
+"""
+    displacements(sol::Solution, i::Int)
+
+Return the vector of displacements of the given solution along coordinate `i`.
+"""
+function displacements(sol::Solution, i::Int)
+    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    U = displacements(sol)
+    return [u[i] for u in U]
+end
 
 """
     velocities(sol::Solution)
@@ -64,11 +82,33 @@ Return the vector of velocities of the given solution.
 velocities(sol::Solution) = sol.U′
 
 """
+    velocities(sol::Solution, i::Int)
+
+Return the vector of velocities of the given solution along coordinate `i`.
+"""
+function velocities(sol::Solution, i::Int)
+    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    U′ = velocities(sol)
+    return [u′[i] for u′ in U′]
+end
+
+"""
     accelerations(sol::Solution)
 
 Return the vector of accelerations of the given solution.
 """
 accelerations(sol::Solution) = sol.U′′
+
+"""
+    accelerations(sol::Solution, i::Int)
+
+Return the vector of accelerations of the given solution along coordinate `i`.
+"""
+function accelerations(sol::Solution, i::Int)
+    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    U′′ = accelerations(sol)
+    return [u′′[i] for u′′ in U′′]
+end
 
 """
     times(sol::Solution)

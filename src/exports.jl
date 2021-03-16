@@ -12,4 +12,5 @@ export solve,
        displacements,
        velocities,
        accelerations,
-       times
+       times,
+       dim

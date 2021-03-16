@@ -1,4 +1,24 @@
 # ---------------------------------------------------------
+# Simple harmonic oscillator without forcing term
+# ---------------------------------------------------------
+function harmonic_oscillator_free()
+    k  = 2 ; m  = .5 ;  c = .1 ;
+    u0 = 1 ; v0 = 0 ;
+
+    M = m * ones(1, 1)
+    C = c * ones(1, 1)
+    K = k * ones(1, 1)
+    R = zeros(1)
+
+    sys = SecondOrderAffineContinuousSystem(M, C, K, R)
+
+    U₀ = u0 * ones(1)
+    V₀ = v0 * ones(1)
+
+    return InitialValueProblem(sys, (U₀, V₀))
+end
+
+# ---------------------------------------------------------
 # This example can be found in
 # [Chapter 9, in Finite Element Procedures, K-J Bathe].
 # ---------------------------------------------------------
