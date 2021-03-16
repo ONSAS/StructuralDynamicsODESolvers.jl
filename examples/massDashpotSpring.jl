@@ -1,9 +1,9 @@
-# Mass dashpot spring
+# # Mass dashpot spring
 
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/massDashpotSpring.ipynb)
 #
 
-## Free oscillations
+# ## Free oscillations
 
 using StructuralDynamicsODESolvers, Plots
 
@@ -31,7 +31,7 @@ sol = solve(ivp_free, alg, NSTEPS=100)
 
 plot(sol, vars=(0, 1))
 
-## Forced oscillations
+# ## Forced oscillations
 
 NSTEPS = 100
 Δt = 0.1

@@ -2,7 +2,7 @@
 EditURL = "<unknown>/examples/example_9_1_Bathe.jl"
 ```
 
-## Example
+# Example (Ch. 9 Bathe)
 
 [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](<unknown>/models/example_9_1_Bathe.ipynb)
 
@@ -12,7 +12,7 @@ The example considered next can be found in Chapter 9 of [[BATHE]](@ref).
 using StructuralDynamicsODESolvers, Plots
 ```
 
-### Problem formulation
+## Problem formulation
 
 ```@example example_9_1_Bathe
 M = [2 0; 0 1.]
@@ -27,7 +27,7 @@ U₀, U₀′ = zeros(2), zeros(2)
 prob = InitialValueProblem(example_9_1_Bathe, (U₀, U₀′))
 ```
 
-### Analytic solution
+## Analytic solution
 
 ```@example example_9_1_Bathe
 A = [1/√3  (1/2)*√(2/3);
@@ -37,7 +37,7 @@ x₂(t) = (2 * √(2/3)) * (-1 + cos(t*√5))
 U(t) = A * [x₁(t), x₂(t)]
 ```
 
-### Central difference
+## Central difference
 
 ```@example example_9_1_Bathe
 sol = solve(prob, CentralDifference(Δt=0.1); NSTEPS=NSTEPS) |> displacements
@@ -48,7 +48,7 @@ plot!(fig, tdom, [s[1] for s in sol], lab="Central difference")
 plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Central difference")
 ```
 
-### Houbolt
+## Houbolt
 
 ```@example example_9_1_Bathe
 sol = solve(prob, Houbolt(Δt=0.1); NSTEPS=NSTEPS) |> displacements
@@ -56,7 +56,7 @@ plot!(fig, tdom, [s[1] for s in sol], lab="Houbolt")
 plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Houbolt")
 ```
 
-### Newmark
+## Newmark
 
 ```@example example_9_1_Bathe
 sol = solve(prob, Trapezoidal(Δt=0.1); NSTEPS=NSTEPS) |> displacements
@@ -64,7 +64,7 @@ plot!(fig, tdom, [s[1] for s in sol], lab="Newmark")
 plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Newmark")
 ```
 
-### Bathe
+## Bathe
 
 ```@example example_9_1_Bathe
 sol = solve(prob, Bathe(Δt=0.1); NSTEPS=NSTEPS) |> displacements
@@ -72,7 +72,7 @@ plot!(fig, tdom, [s[1] for s in sol], lab="Bathe")
 plot!(fig2, tdom[ind], [s[1] for s in sol[ind]], lab="Bathe")
 ```
 
-### Analytic solution
+## Analytic solution
 
 ```@example example_9_1_Bathe
 tdom = range(0, NSTEPS*0.1, length=1000)

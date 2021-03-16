@@ -17,8 +17,8 @@ makedocs(
         "Home" => "index.md",
         "Algorithms" => Any["First-order problems" => "lib/first_order.md",
                             "Second-order problems" => "lib/second_order.md"],
-        "Examples" => ["models/example_9_1_Bathe.md",
-                       "models/massDashpotSpring.md"],
+        "Examples" => Any["Example (Ch.9 Bathe)" => "models/example_9_1_Bathe.md",
+                          "Spring-mass" => "models/massDashpotSpring.md"],
         "API Reference" => "lib/api.md",
         "References" => "references.md",
         "About" => "about.md"

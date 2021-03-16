@@ -20,7 +20,7 @@ ivp_free = InitialValueProblem(sys, (U₀, V₀))
 alg = Bathe(Δt = 0.1)
 sol = solve(ivp_free, alg, NSTEPS=100)
 
-plot(times(sol), displacements(sol, 1))
+plot(sol, vars=(0, 1))
 
 # Forced oscillations
 
@@ -41,5 +41,5 @@ ivp_forced = InitialValueProblem(sys, (U₀, V₀))
 alg = Bathe(Δt = 0.1)
 sol = solve(ivp_forced, alg, NSTEPS=NSTEPS)
 
-plot(times(sol), displacements(sol, 1))
+plot(sol, vars=(0, 1))
 

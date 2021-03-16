@@ -30,8 +30,10 @@ alg = Bathe(Δt = 0.1)
 sol = solve(ivp_free, alg, NSTEPS=100)
 ```
 
+The following command is the same as `plot(times(sol), displacements(sol, 1))`.
+
 ```@example massDashpotSpring
-plot(times(sol), displacements(sol, 1))
+plot(sol, vars=(0, 1))
 
 # Forced oscillations
 
@@ -54,6 +56,6 @@ sol = solve(ivp_forced, alg, NSTEPS=NSTEPS)
 ```
 
 ```@example massDashpotSpring
-plot(times(sol), displacements(sol, 1))
+plot(sol, vars=(0, 1))
 ```
 
