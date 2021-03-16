@@ -201,3 +201,37 @@ function _unwrap(sys::SecondOrderConstrainedLinearControlContinuousSystem, IMAX)
     R = _init_input(R, B, IMAX)
     return M, C, K, R
 end
+
+# ================
+# Plot recipes
+# ================
+
+function _check_vars(vars)
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+              "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+              "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot in one or two dimensions, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+end
+
+# plot displacements of the solution for the given vars tuple, eg. vars=(0, 1) for x1(t) vs t
+@recipe function plot_solution(sol::Solution; vars=nothing)
+
+   seriestype -->  :path # :scatter
+   markershape --> :circle
+
+   _check_vars(vars)
+
+   if vars[1] == 0 && vars[2] != 0
+       x = times(sol)
+       y = displacements(sol, vars[2])
+       x, y
+    else
+       x = displacements(sol, vars[1])
+       y = displacements(sol, vars[2])
+    end
+    return x, y
+end

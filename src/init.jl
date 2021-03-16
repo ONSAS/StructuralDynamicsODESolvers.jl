@@ -1,4 +1,4 @@
-using Reexport, FillArrays, DocStringExtensions
+using Reexport, FillArrays, DocStringExtensions, RecipesBase
 
 @reexport using MathematicalSystems
 
