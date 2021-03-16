@@ -46,6 +46,15 @@ end
     @test abs(sol[13][2] - 2.40) < 5e-3
 end
 
+@testset "Bathe method with forcing term" begin
+    ivp, NSTEPS, Δt = harmonic_oscillator_forced()
+
+    alg = Bathe(Δt = Δt)
+    sol = solve(ivp, alg, NSTEPS=NSTEPS)
+
+    # TODO add analytic solution for test
+end
+
 @testset "BackwardEuler method" begin
     prob, U = heat_transfer()
 

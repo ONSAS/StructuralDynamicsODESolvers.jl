@@ -153,9 +153,14 @@ function solve!(prob::StructuralDynamicsProblem)
     return _solve(prob.alg, prob.ivp, prob.NSTEPS)
 end
 
-function init(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
+const SOACS = SecondOrderConstrainedLinearControlContinuousSystem
+const SOCLCCS  = SecondOrderConstrainedLinearControlContinuousSystem
+
+function init(ivp::InitialValueProblem{ST, XT},
               alg::AbstractSolver;
-              NSTEPS) where {N, VT, XT<:Tuple{VT, VT}}
+              NSTEPS) where {N, VT,
+                             ST, # FIXME restrict to SOACS and SOCLCCS
+                             XT<:Tuple{VT, VT}}
 
     return StructuralDynamicsProblem(alg, ivp, NSTEPS)
 end

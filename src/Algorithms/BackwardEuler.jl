@@ -21,7 +21,7 @@ function _init(alg::BackwardEuler, M, C, K)
 end
 
 function _solve(alg::BackwardEuler{N},
-                ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
+                ivp::InitialValueProblem{ST, XT},
                 NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
