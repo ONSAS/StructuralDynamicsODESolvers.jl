@@ -1,8 +1,6 @@
-# Free oscillations
+using StructuralDynamicsODESolvers, Plots, LinearAlgebra
 
-using StructuralDynamicsODESolvers, Plots
-
-k  = 2 ; m  = .5 ;  c = .1 ;
+k  = 2 ; m  = .5 ;  c = 0 ;
 u0 = 1 ; v0 = 0 ;
 
 M = m * ones(1, 1)
@@ -12,34 +10,54 @@ R = zeros(1)
 
 sys = SecondOrderAffineContinuousSystem(M, C, K, R)
 
-U₀ = u0 * ones(1)
-V₀ = v0 * ones(1)
+U₀ = u0 * ones(1); V₀ = v0 * ones(1);
 
 ivp_free = InitialValueProblem(sys, (U₀, V₀))
 
-alg = Bathe(Δt = 0.1)
-sol = solve(ivp_free, alg, NSTEPS=100)
+NSTEPS = 1000 ;
+Δt = 0.005 ;
+
+alg = Bathe(Δt = Δt )
+sol = solve(ivp_free, alg, NSTEPS=NSTEPS);
 
 plot(sol, vars=(0, 1))
 
-# Forced oscillations
+ωN = sqrt(k/m)
+ωf = ωN * 2
+Af = 10.0
+R  = [ [ Af * sin(ωf * Δt * (i-1) ) ] for i in 1:NSTEPS+1];
 
-NSTEPS = 100
-Δt = 0.1
-ωf = k/(2m)
-R = [[0.1 * sin(ωf * Δt * (i-1))] for i in 1:NSTEPS+1]
-
-X = nothing # state constraints are ignored
-B = ones(1, 1)
+X   = nothing # state constraints are ignored
+B   = ones(1, 1)
 sys = SecondOrderConstrainedLinearControlContinuousSystem(M, C, K, B, X, R)
 
-U₀ = u0 * ones(1)
-V₀ = v0 * ones(1)
+ivp_forced_secOrder = InitialValueProblem(sys, (U₀, V₀))
 
-ivp_forced = InitialValueProblem(sys, (U₀, V₀))
+alg = Bathe(Δt = Δt )
+sol_secOrder = solve(ivp_forced_secOrder, alg, NSTEPS=NSTEPS);
 
-alg = Bathe(Δt = 0.1)
-sol = solve(ivp_forced, alg, NSTEPS=NSTEPS)
+K = [     0 1     0 0 ;
+      -ωN^2 0     1/m 0 ;
+          0 0     0 1 ;
+          0 0 -ωf^2 0 ] ;
 
-plot(sol, vars=(0, 1))
+C = -Diagonal(ones(4))
+M = zeros(4,4)
+R = zeros(4)
+
+sys = SecondOrderAffineContinuousSystem(M, C, K, R)
+
+U₀ = [u0; v0; 0; ωf*Af ] ;
+
+ivp_forced_firOrder = InitialValueProblem(sys, (U₀, U₀) )
+
+alg = BackwardEuler(Δt = Δt )
+sol_firOrderA = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
+
+NSTEPS = NSTEPS*3 ; alg = BackwardEuler(Δt = Δt/3.0 )
+sol_firOrderB = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
+
+plot(sol_secOrder, vars=(0, 1), xlab="time" )
+plot!(sol_firOrderA, vars=(0, 1))
+plot!(sol_firOrderB, vars=(0, 1))
 
