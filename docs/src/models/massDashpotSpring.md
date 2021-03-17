@@ -25,8 +25,8 @@ U₀ = u0 * ones(1); V₀ = v0 * ones(1);
 
 ivp_free = InitialValueProblem(sys, (U₀, V₀))
 
-NSTEPS = 1000 ;
-Δt = 0.01 ;
+NSTEPS = 500 ;
+Δt = 0.05 ;
 nothing #hide
 ```
 
@@ -45,10 +45,10 @@ plot(sol, vars=(0, 1))
 ## Forced oscillations
 
 ### Problem definition
-Let us consider now a forcing term $ f(t)= A_f \sin(ω_f \cdot t) $
+Let us consider now a forcing term $ f(t) = A_f \sin(ω_f . t) $
 
 ```@example massDashpotSpring
-ωN = k/m
+ωN = sqrt(k/m)
 ωf = ωN * 2
 Af = 10.0
 R  = [ [ Af * sin(ωf * Δt * (i-1) ) ] for i in 1:NSTEPS+1];
@@ -77,16 +77,13 @@ The problem can be re-formulated as a first order and homogeneous one given by
 \left\{
 \begin{array}{l}
 \dot{u} = v \\
-\dot{v} = -\omega_N^2 u + u_f \\
+\dot{v} = -\omega_N^2 u + u_f/m \\
 \dot{u_f} = v_f \\
 \dot{v_f} = -\omega_f^2 u_f
 \end{array}
 \right.
 ```
-
-```@example massDashpotSpring
-#The new vector of variables is
-```
+The new vector of variables is
 
 ```math
 \textbf{x} = [ u, v, u_f, v_f ]^T
@@ -94,7 +91,7 @@ The problem can be re-formulated as a first order and homogeneous one given by
 
 ```@example massDashpotSpring
 K = [     0 1     0 0 ;
-      -ωN^2 0     1 0 ;
+      -ωN^2 0     1/m 0 ;
           0 0     0 1 ;
           0 0 -ωf^2 0 ] ;
 

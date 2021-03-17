@@ -23,8 +23,8 @@ U₀ = u0 * ones(1); V₀ = v0 * ones(1);
 
 ivp_free = InitialValueProblem(sys, (U₀, V₀))
 
-NSTEPS = 1000 ;
-Δt = 0.01 ;
+NSTEPS = 500 ;
+Δt = 0.05 ;
 
 #-
 
@@ -94,9 +94,10 @@ U₀ = [u0; v0; 0; ωf*Af ] ;
 ivp_forced_firOrder = InitialValueProblem(sys, (U₀, U₀) )
 
 alg = BackwardEuler(Δt = Δt )
-sol_firOrder = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
+sol_firOrderA = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
 
-
+NSTEPS = 1500 ; alg = BackwardEuler(Δt = Δt/3.0 )
+sol_firOrderB = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
 
 # The solution obtained is
 

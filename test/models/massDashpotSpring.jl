@@ -14,15 +14,15 @@ U₀ = u0 * ones(1); V₀ = v0 * ones(1);
 
 ivp_free = InitialValueProblem(sys, (U₀, V₀))
 
-NSTEPS = 1000 ;
-Δt = 0.01 ;
+NSTEPS = 500 ;
+Δt = 0.05 ;
 
 alg = Bathe(Δt = Δt )
 sol = solve(ivp_free, alg, NSTEPS=NSTEPS);
 
 plot(sol, vars=(0, 1))
 
-ωN = k/m
+ωN = sqrt(k/m)
 ωf = ωN * 2
 Af = 10.0
 R  = [ [ Af * sin(ωf * Δt * (i-1) ) ] for i in 1:NSTEPS+1];
@@ -36,10 +36,8 @@ ivp_forced_secOrder = InitialValueProblem(sys, (U₀, V₀))
 alg = Bathe(Δt = Δt )
 sol_secOrder = solve(ivp_forced_secOrder, alg, NSTEPS=NSTEPS);
 
-#The new vector of variables is
-
 K = [     0 1     0 0 ;
-      -ωN^2 0     1 0 ;
+      -ωN^2 0     1/m 0 ;
           0 0     0 1 ;
           0 0 -ωf^2 0 ] ;
 
