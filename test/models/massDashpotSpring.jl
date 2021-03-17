@@ -14,8 +14,8 @@ U₀ = u0 * ones(1); V₀ = v0 * ones(1);
 
 ivp_free = InitialValueProblem(sys, (U₀, V₀))
 
-NSTEPS = 500 ;
-Δt = 0.05 ;
+NSTEPS = 1000 ;
+Δt = 0.005 ;
 
 alg = Bathe(Δt = Δt )
 sol = solve(ivp_free, alg, NSTEPS=NSTEPS);
@@ -52,8 +52,12 @@ U₀ = [u0; v0; 0; ωf*Af ] ;
 ivp_forced_firOrder = InitialValueProblem(sys, (U₀, U₀) )
 
 alg = BackwardEuler(Δt = Δt )
-sol_firOrder = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
+sol_firOrderA = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
+
+NSTEPS = NSTEPS*3 ; alg = BackwardEuler(Δt = Δt/3.0 )
+sol_firOrderB = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
 
 plot(sol_secOrder, vars=(0, 1), xlab="time" )
-plot!(sol_firOrder, vars=(0, 1), xlab="time" )
+plot!(sol_firOrderA, vars=(0, 1))
+plot!(sol_firOrderB, vars=(0, 1))
 
