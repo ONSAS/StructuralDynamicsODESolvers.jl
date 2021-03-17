@@ -36,8 +36,8 @@ function _init(alg::Houbolt, M, C, K)
 end
 
 function _solve(alg::Houbolt{N},
-                ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
-                NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
+                ivp::InitialValueProblem{ST, XT},
+                NSTEPS::Int) where {N, VT, ST, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)

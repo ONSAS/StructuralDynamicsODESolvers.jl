@@ -1,4 +1,50 @@
 # ---------------------------------------------------------
+# Simple harmonic oscillator without forcing term
+# ---------------------------------------------------------
+function harmonic_oscillator_free()
+    k  = 2 ; m  = .5 ;  c = .1 ;
+    u0 = 1 ; v0 = 0 ;
+
+    M = m * ones(1, 1)
+    C = c * ones(1, 1)
+    K = k * ones(1, 1)
+    R = zeros(1)
+
+    sys = SecondOrderAffineContinuousSystem(M, C, K, R)
+
+    U₀ = u0 * ones(1)
+    V₀ = v0 * ones(1)
+
+    return InitialValueProblem(sys, (U₀, V₀))
+end
+
+# ---------------------------------------------------------
+# Simple harmonic oscillator with forcing term
+# ---------------------------------------------------------
+function harmonic_oscillator_forced()
+    k  = 2 ; m  = .5 ;  c = .1 ;
+    u0 = 1 ; v0 = 0 ;
+
+    M = m * ones(1, 1)
+    C = c * ones(1, 1)
+    K = k * ones(1, 1)
+
+    NSTEPS = 100
+    Δt = 0.1
+    ωf = k/(2m)
+    R = [[0.1 * sin(ωf * Δt * (i-1))] for i in 1:NSTEPS+1]
+
+    X = nothing # Universe(1) ignores state constraints
+    B = ones(1, 1)
+    sys = SecondOrderConstrainedLinearControlContinuousSystem(M, C, K, B, X, R)
+
+    U₀ = u0 * ones(1)
+    V₀ = v0 * ones(1)
+
+    return InitialValueProblem(sys, (U₀, V₀)), NSTEPS, Δt
+end
+
+# ---------------------------------------------------------
 # This example can be found in
 # [Chapter 9, in Finite Element Procedures, K-J Bathe].
 # ---------------------------------------------------------

@@ -50,11 +50,29 @@ end
 Solution(alg, U, t) = Solution(alg, U, nothing, nothing, t)
 
 """
+    dim(sol::Solution)
+
+Return the ambient dimension of the state space of the solution.
+"""
+dim(sol::Solution) = length(first(sol.U))
+
+"""
     displacements(sol::Solution)
 
 Return the vector of displacements of the given solution.
 """
 displacements(sol::Solution) = sol.U
+
+"""
+    displacements(sol::Solution, i::Int)
+
+Return the vector of displacements of the given solution along coordinate `i`.
+"""
+function displacements(sol::Solution, i::Int)
+    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    U = displacements(sol)
+    return [u[i] for u in U]
+end
 
 """
     velocities(sol::Solution)
@@ -64,11 +82,33 @@ Return the vector of velocities of the given solution.
 velocities(sol::Solution) = sol.U′
 
 """
+    velocities(sol::Solution, i::Int)
+
+Return the vector of velocities of the given solution along coordinate `i`.
+"""
+function velocities(sol::Solution, i::Int)
+    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    U′ = velocities(sol)
+    return [u′[i] for u′ in U′]
+end
+
+"""
     accelerations(sol::Solution)
 
 Return the vector of accelerations of the given solution.
 """
 accelerations(sol::Solution) = sol.U′′
+
+"""
+    accelerations(sol::Solution, i::Int)
+
+Return the vector of accelerations of the given solution along coordinate `i`.
+"""
+function accelerations(sol::Solution, i::Int)
+    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    U′′ = accelerations(sol)
+    return [u′′[i] for u′′ in U′′]
+end
 
 """
     times(sol::Solution)
@@ -113,9 +153,14 @@ function solve!(prob::StructuralDynamicsProblem)
     return _solve(prob.alg, prob.ivp, prob.NSTEPS)
 end
 
-function init(ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
+const SOACS = SecondOrderConstrainedLinearControlContinuousSystem
+const SOCLCCS  = SecondOrderConstrainedLinearControlContinuousSystem
+
+function init(ivp::InitialValueProblem{ST, XT},
               alg::AbstractSolver;
-              NSTEPS) where {N, VT, XT<:Tuple{VT, VT}}
+              NSTEPS) where {N, VT,
+                             ST, # FIXME restrict to SOACS and SOCLCCS
+                             XT<:Tuple{VT, VT}}
 
     return StructuralDynamicsProblem(alg, ivp, NSTEPS)
 end
@@ -129,6 +174,12 @@ end
 function _init_input(R::AbstractVector{VT}, IMAX) where {N, VT<:AbstractVector{N}}
     @assert length(R) == IMAX "expected the forcing term to be an array of length $IMAX, got $(length(R))"
     return R
+end
+
+# TODO dispatch on B (eg. IdentityMultiple)
+function _init_input(R::AbstractVector{VT}, B::AbstractMatrix, IMAX) where {N, VT<:AbstractVector{N}}
+    @assert length(R) == IMAX "expected the forcing term to be an array of length $IMAX, got $(length(R))"
+    return [B*Ri for Ri in R]
 end
 
 # unwrap a second order system into its each component
@@ -145,7 +196,42 @@ function _unwrap(sys::SecondOrderConstrainedLinearControlContinuousSystem, IMAX)
     M = mass_matrix(sys)
     C = viscosity_matrix(sys)
     K = stiffness_matrix(sys)
-    R = affine_term(sys)
-    R = _init_input(R, IMAX)
+    R = inputset(sys)
+    B = input_matrix(sys)
+    R = _init_input(R, B, IMAX)
     return M, C, K, R
+end
+
+# ================
+# Plot recipes
+# ================
+
+function _check_vars(vars)
+    if vars == nothing
+        throw(ArgumentError("default ploting variables not implemented yet; you need " *
+              "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+              "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+    end
+    D = length(vars)
+    @assert (D == 1) || (D == 2) "can only plot in one or two dimensions, " *
+                                 "but received $D variable indices where `vars = ` $vars"
+end
+
+# plot displacements of the solution for the given vars tuple, eg. vars=(0, 1) for x1(t) vs t
+@recipe function plot_solution(sol::Solution; vars=nothing)
+
+   seriestype -->  :path # :scatter
+   markershape --> :circle
+
+   _check_vars(vars)
+
+   if vars[1] == 0 && vars[2] != 0
+       x = times(sol)
+       y = displacements(sol, vars[2])
+       x, y
+    else
+       x = displacements(sol, vars[1])
+       y = displacements(sol, vars[2])
+    end
+    return x, y
 end

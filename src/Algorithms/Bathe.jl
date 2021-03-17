@@ -44,8 +44,8 @@ end
 # a comment about notation: variables with superscript `+` correspond to
 # evaluation at intermediate times, i.e. t + Δt/2
 function _solve(alg::Bathe{N},
-                ivp::InitialValueProblem{<:SecondOrderAffineContinuousSystem{N}, XT},
-                NSTEPS::Int) where {N, VT, XT<:Tuple{VT, VT}}
+                ivp::InitialValueProblem{ST, XT},
+                NSTEPS::Int) where {N, VT, ST, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)
