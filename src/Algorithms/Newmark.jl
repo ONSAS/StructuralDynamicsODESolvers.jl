@@ -82,7 +82,7 @@ function _solve(alg::Newmark{N},
 
     U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
     a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
-    K̂⁻¹ = inv(K̂)
+    K̂⁻¹ = factorize(K̂)
 
     # initialize displacements, velocities and accelerations
     U = Vector{VT}(undef, IMAX)
@@ -99,7 +99,7 @@ function _solve(alg::Newmark{N},
         R̂ᵢ₊₁ = R[i+1] + mᵢ + cᵢ
 
         # solve for displacements
-        U[i+1] = K̂⁻¹ * R̂ᵢ₊₁
+        U[i+1] = K̂⁻¹ \ R̂ᵢ₊₁
 
         # calculate accelerations and velocities
         U′′[i+1] = a₀ * (U[i+1] - U[i]) - a₂ * U′[i] - a₃ * U′′[i]
