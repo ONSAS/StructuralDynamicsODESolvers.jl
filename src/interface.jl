@@ -144,7 +144,7 @@ Solve an initial-value problem.
 A solution structure (`Solution`) that holds the result and the algorithm used
 to obtain it.
 """
-function solve(ivp::InitialValueProblem, alg::AbstractSolver, args...; NSTEPS, kwargs...)
+function solve(ivp::IVP{<:AbstractContinuousSystem}, alg::AbstractSolver, args...; NSTEPS, kwargs...)
     return solve!(init(ivp, alg, args...; NSTEPS=NSTEPS, kwargs...))
 end
 
