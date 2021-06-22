@@ -33,7 +33,7 @@ function _solve(alg::BackwardEuler{N},
     iszero(M) || throw(ArgumentError("this method assumes that the system is of first order"))
 
     K̂ = _init(alg, M, C, K)
-    K̂⁻¹ = inv(K̂)
+    K̂⁻¹ = factorize(K̂)
 
     # initialize
     U = Vector{VT}(undef, IMAX)
@@ -44,7 +44,7 @@ function _solve(alg::BackwardEuler{N},
     @inbounds for i in 1:NSTEPS
         R̂ᵢ₊₁ = R[i+1] * Δt + C*U[i]
         # solve
-        U[i+1] = K̂⁻¹ * R̂ᵢ₊₁
+        U[i+1] = K̂⁻¹ \ R̂ᵢ₊₁
     end
 
     return _build_solution(alg, U, NSTEPS)

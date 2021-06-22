@@ -55,8 +55,8 @@ function _solve(alg::Bathe{N},
 
     U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
     a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂₁, K̂₂ = _init(alg, M, C, K)
-    K̂₁⁻¹ = inv(K̂₁)
-    K̂₂⁻¹ = inv(K̂₂)
+    K̂₁⁻¹ = factorize(K̂₁)
+    K̂₂⁻¹ = factorize(K̂₂)
 
     # initialize displacements, velocities and accelerations
     U = Vector{VT}(undef, IMAX)
@@ -78,7 +78,7 @@ function _solve(alg::Bathe{N},
         R̂ᵢ⁺ = Rᵢ⁺ + mᵢ + cᵢ
 
         # solve for displacements at time t + Δt/2
-        Uᵢ⁺ = K̂₁⁻¹ * R̂ᵢ⁺
+        Uᵢ⁺ = K̂₁⁻¹ \ R̂ᵢ⁺
 
         # calculate velocities at time t + Δt/2
         U′ᵢ⁺ = a₁ * (Uᵢ⁺ - U[i]) - U′[i]
@@ -93,7 +93,7 @@ function _solve(alg::Bathe{N},
         R̂ᵢ₊₁ = R[i+1] + mᵢ + cᵢ
 
         # solve for displacements at time t + Δt
-        U[i+1] = K̂₂⁻¹ * R̂ᵢ₊₁
+        U[i+1] = K̂₂⁻¹ \ R̂ᵢ₊₁
 
         # calculate velocities and accelerations at time t + Δt
         U′[i+1] = -a₇ * U[i] - a₁ * Uᵢ⁺ + a₃ * U[i+1]

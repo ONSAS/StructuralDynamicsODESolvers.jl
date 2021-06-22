@@ -47,7 +47,7 @@ function _solve(alg::Houbolt{N},
 
     U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
     a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
-    K̂⁻¹ = inv(K̂)
+    K̂⁻¹ = factorize(K̂)
 
     U = Vector{VT}(undef, IMAX)
     U[1] = U₀
@@ -61,7 +61,7 @@ function _solve(alg::Houbolt{N},
         mᵢ = M * (a₂ * U[i] + a₄ * U[i-1] + a₆ * U[i-2])
         cᵢ = C * (a₃ * U[i] + a₅ * U[i-1] + a₇ * U[i-2])
         R̂ᵢ₊₁ = R[i+1] + mᵢ + cᵢ
-        U[i+1] = K̂⁻¹ * R̂ᵢ₊₁
+        U[i+1] = K̂⁻¹ \ R̂ᵢ₊₁
     end
 
     return _build_solution(alg, U, NSTEPS)

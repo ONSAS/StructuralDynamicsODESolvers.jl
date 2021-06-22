@@ -39,7 +39,7 @@ function _solve(alg::CentralDifference{N},
 
     U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
     a₀, a₁, a₂, U⁻, M̂ = _init(alg, M, C, K, U₀, U₀′, U₀′′)
-    M̂⁻¹ = inv(M̂)
+    M̂⁻¹ = factorize(M̂)
 
     U = Vector{VT}(undef, IMAX+1)
     U[1] = U⁻
@@ -47,7 +47,7 @@ function _solve(alg::CentralDifference{N},
 
     @inbounds for i in 2:IMAX
         R̂ᵢ = R[i] - (K - a₂ * M) * U[i] - (a₀*M - a₁*C) * U[i-1]
-        U[i+1] = M̂⁻¹ * R̂ᵢ
+        U[i+1] = M̂⁻¹ \ R̂ᵢ
     end
 
     return _build_solution(alg, view(U, 2:IMAX+1), NSTEPS)
