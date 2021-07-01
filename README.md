@@ -33,8 +33,8 @@ u0 = 1 ; v0 = 0
 
 algo = Bathe(Δt = 0.1)
 
-M = m*ones(1, 1) C = c*ones(1, 1)
-K = k*ones(1, 1) R = zeros(1)
+M = m*ones(1, 1); C = c*ones(1, 1)
+K = k*ones(1, 1); R = zeros(1)
 
 sys = SecondOrderAffineContinuousSystem(M, C, K, R)
 
