@@ -40,7 +40,8 @@ R = zeros(1)
 
 sys = SecondOrderAffineContinuousSystem(M, C, K, R)
 
-U₀ = u0 * ones(1) ; V₀ = v0 * ones(1)
+U₀ = u0 * ones(1)
+V₀ = v0 * ones(1)
 
 prob = InitialValueProblem(sys, (U₀, V₀))
 
