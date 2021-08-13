@@ -75,16 +75,17 @@ function _solve(alg::Newmark{N},
                 NSTEPS::Int) where {N, VT, ST, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
-    (U₀, U₀′) = initial_state(ivp)
 
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
 
-    U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
     a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
     K̂⁻¹ = factorize(K̂)
 
     # initialize displacements, velocities and accelerations
+    (U₀, U₀′) = initial_state(ivp)
+    U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
+
     U = Vector{VT}(undef, IMAX)
     U′ = Vector{VT}(undef, IMAX)
     U′′ = Vector{VT}(undef, IMAX)
@@ -112,4 +113,64 @@ end
 function _build_solution(alg::Newmark{N}, U, U′, U′′, NSTEPS) where {N}
     t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
     return Solution(alg, U, U′, U′′, t)
+end
+
+function _solve_statistics(alg::Newmark{N},
+                           ivp::InitialValueProblem{ST, XT},
+                           NSTEPS::Int,
+                           remake, idx) where {N, VT, ST, XT<:Tuple{VT, VT}}
+
+    sys = system(ivp)
+
+    IMAX = NSTEPS + 1
+    M, C, K, R = _unwrap(sys, IMAX)
+    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
+    K̂⁻¹ = factorize(K̂)
+
+    # initialize displacements, velocities and accelerations
+    U = Vector{VT}(undef, IMAX)
+    U′ = Vector{VT}(undef, IMAX)
+    U′′ = Vector{VT}(undef, IMAX)
+
+    # output vectors
+    U_min = fill(Inf, IMAX)
+    U_max = fill(-Inf, IMAX)
+
+    U′_min = fill(Inf, IMAX)
+    U′_max = fill(-Inf, IMAX)
+
+    for state in remake
+        (U₀, U₀′) = state
+
+        # initialization
+        U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
+        U[1] = U₀
+        U′[1] = U₀′
+        U′′[1] = U₀′′
+
+        @inbounds for i in 1:NSTEPS
+            # calculate effective loads
+            mᵢ = M * (a₀ * U[i] + a₂ * U′[i] + a₃ * U′′[i])
+            cᵢ = C * (a₁ * U[i] + a₄ * U′[i] + a₅ * U′′[i])
+            R̂ᵢ₊₁ = R[i+1] + mᵢ + cᵢ
+
+            # solve for displacements
+            U[i+1] = K̂⁻¹ \ R̂ᵢ₊₁
+
+            # calculate accelerations and velocities
+            U′′[i+1] = a₀ * (U[i+1] - U[i]) - a₂ * U′[i] - a₃ * U′′[i]
+            U′[i+1] = U′[i] + a₆ * U′′[i] + a₇ * U′′[i+1]
+        end
+
+        # store observables
+        @inbounds for i in 1:IMAX
+            U_min[i] = min(U_min[i], U[i][idx])
+            U_max[i] = max(U_max[i], U[i][idx])
+            U′_min[i] = min(U′_min[i], U′[i][idx])
+            U′_max[i] = max(U′_max[i], U′[i][idx])
+        end
+    end
+
+    t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
+    return SolutionExtrema(alg, U_min, U_max, U′_min, U′_max, idx, t)
 end
