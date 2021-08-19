@@ -146,8 +146,6 @@ function _solve_statistics(alg::Newmark{N},
     U′_min = fill(Inf, IMAX)
     U′_max = fill(-Inf, IMAX)
 
-    sampler_des, sampler_vel = sampler
-
     hist = Dict()
     MAXSAMPLES = vecsamples[end]
 
