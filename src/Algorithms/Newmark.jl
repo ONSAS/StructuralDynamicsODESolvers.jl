@@ -115,10 +115,12 @@ function _build_solution(alg::Newmark{N}, U, U′, U′′, NSTEPS) where {N}
     return Solution(alg, U, U′, U′′, t)
 end
 
+_next!(sampler, Unew) = nothing # ignored
+
 function _solve_statistics(alg::Newmark{N},
                            ivp::InitialValueProblem{ST, XT},
                            NSTEPS::Int,
-                           remake, idx) where {N, VT, ST, XT<:Tuple{VT, VT}}
+                           sampler, idx, vecsamples::Vector{Int}) where {N, VT, ST, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
 
@@ -128,9 +130,14 @@ function _solve_statistics(alg::Newmark{N},
     K̂⁻¹ = factorize(K̂)
 
     # initialize displacements, velocities and accelerations
-    U = Vector{VT}(undef, IMAX)
-    U′ = Vector{VT}(undef, IMAX)
-    U′′ = Vector{VT}(undef, IMAX)
+    #U = Vector{VT}(undef, IMAX)
+    #U′ = Vector{VT}(undef, IMAX)
+    #U′′ = Vector{VT}(undef, IMAX)
+
+    m = size(M, 1)
+    U = [VT(undef, m) for _ in 1:IMAX]
+    U′ = [VT(undef, m) for _ in 1:IMAX]
+    U′′ = [VT(undef, m) for _ in 1:IMAX]
 
     # output vectors
     U_min = fill(Inf, IMAX)
@@ -139,13 +146,25 @@ function _solve_statistics(alg::Newmark{N},
     U′_min = fill(Inf, IMAX)
     U′_max = fill(-Inf, IMAX)
 
-    for state in remake
-        (U₀, U₀′) = state
+    sampler_des, sampler_vel = sampler
+
+    hist = Dict()
+    MAXSAMPLES = vecsamples[end]
+
+    runtimes = Dict()
+    time0 = time_ns() * 1e-9
+
+    U0new = Vector{N}(undef, 2*m)
+    q = 1
+    for k in 1:MAXSAMPLES
+
+        # get next state
+        _next!(sampler, U0new)
+        copyto!(U[1], view(U0new, 1:m))
+        copyto!(U′[1], view(U0new, m+1:2m))
 
         # initialization
-        U₀′′ = M \ (R[1] - C * U₀′ - K * U₀)
-        U[1] = U₀
-        U′[1] = U₀′
+        U₀′′ = M \ (R[1] - C * U′[1] - K * U[1])
         U′′[1] = U₀′′
 
         @inbounds for i in 1:NSTEPS
@@ -155,11 +174,11 @@ function _solve_statistics(alg::Newmark{N},
             R̂ᵢ₊₁ = R[i+1] + mᵢ + cᵢ
 
             # solve for displacements
-            U[i+1] = K̂⁻¹ \ R̂ᵢ₊₁
+            U[i+1] .= K̂⁻¹ \ R̂ᵢ₊₁
 
             # calculate accelerations and velocities
-            U′′[i+1] = a₀ * (U[i+1] - U[i]) - a₂ * U′[i] - a₃ * U′′[i]
-            U′[i+1] = U′[i] + a₆ * U′′[i] + a₇ * U′′[i+1]
+            U′′[i+1] .= a₀ * (U[i+1] - U[i]) - a₂ * U′[i] - a₃ * U′′[i]
+            U′[i+1] .= U′[i] + a₆ * U′′[i] + a₇ * U′′[i+1]
         end
 
         # store observables
@@ -169,8 +188,14 @@ function _solve_statistics(alg::Newmark{N},
             U′_min[i] = min(U′_min[i], U′[i][idx])
             U′_max[i] = max(U′_max[i], U′[i][idx])
         end
+
+        if k == vecsamples[q]
+            hist[:($k)] = Dict(:U_min=>copy(U_min), :U_max=>copy(U_max), :Udot_min=>copy(U′_min), :Udot_max=>copy(U′_max))
+            runtimes[:($k)] = time_ns() * 1e-9 - time0
+            q += 1
+        end
     end
 
     t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
-    return SolutionExtrema(alg, U_min, U_max, U′_min, U′_max, idx, t)
+    return SolutionExtrema(alg, U_min, U_max, U′_min, U′_max, idx, hist, runtimes, t)
 end
