@@ -1,7 +1,7 @@
 name = "StructuralDynamicsODESolvers"
 uuid = "5837384c-0389-41f0-a8dd-204a40e5dede"
 authors = ["jorgepz <jorgepz@fing.edu.uy>", "mforets  <mforets@gmail.com>", "dfcaporale  <dfcaporale@gmail.com>"]
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
