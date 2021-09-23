@@ -236,7 +236,7 @@ function _check_vars(vars)
 end
 
 # plot displacements of the solution for the given vars tuple, eg. vars=(0, 1) for x1(t) vs t
-@recipe function plot_solution(sol::Solution; vars=nothing)
+@recipe function plot_solution(sol::Solution; vars=nothing, func=displacements)
 
    seriestype -->  :path # :scatter
    markershape --> :circle
@@ -245,11 +245,11 @@ end
 
    if vars[1] == 0 && vars[2] != 0
        x = times(sol)
-       y = displacements(sol, vars[2])
+       y = func(sol, vars[2])
        x, y
     else
-       x = displacements(sol, vars[1])
-       y = displacements(sol, vars[2])
+       x = func(sol, vars[1])
+       y = func(sol, vars[2])
     end
     return x, y
 end
