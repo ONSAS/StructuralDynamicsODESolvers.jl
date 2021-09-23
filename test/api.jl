@@ -18,3 +18,27 @@
     @test A == accelerations(sol, 1)
     @test_throws ArgumentError accelerations(sol, 2)
 end
+
+@testset "Solver options" begin
+    ivp = harmonic_oscillator_free()
+
+    alg = Bathe(Δt = 0.1)
+
+    sol = solve(ivp, alg, NSTEPS=100)
+    @test times(sol)[end] == 10.0
+
+    sol = solve(ivp, alg, T=10.0)
+    @test times(sol)[end] == 10.0
+
+    sol = solve(ivp, alg, tspan=(0.0, 10.0))
+    @test times(sol)[end] == 10.0
+
+    sol = solve(ivp, alg, finalTime=10.0)
+    @test times(sol)[end] == 10.0
+
+    # test unknown argument name
+    @test_throws ArgumentError solve(ivp, alg, final_time=10.0)
+
+    # starting with shifted interval is not implemented
+    @test_throws AssertionError solve(ivp, alg, tspan=(1.0, 2.0))
+end
