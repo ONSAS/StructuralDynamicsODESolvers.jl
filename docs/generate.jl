@@ -13,7 +13,8 @@ mkpath(target_dir_md)
 
 # model files in sub-directories of source_dir
 MODELS = ["example_9_1_Bathe.jl",
-          "massDashpotSpring.jl"]
+          "massDashpotSpring.jl",
+          "dynamic_von_mises_truss.jl"]
 
 for file in MODELS
     source_path = abspath(joinpath(source_dir, file))
