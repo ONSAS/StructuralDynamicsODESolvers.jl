@@ -24,5 +24,6 @@ docs/site/
 # environment.
 Manifest.toml
 
+test/models/
 
 .ipynb_checkpoints
