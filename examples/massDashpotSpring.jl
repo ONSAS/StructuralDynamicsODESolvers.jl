@@ -40,7 +40,7 @@ plot(sol, vars=(0, 1))
 # ## Forced oscillations
 #
 # ### Problem definition
-# Let us consider now a forcing term $ f(t) = A_f \sin(ω_f . t) $
+# Let us consider now a forcing term $f(t) = A_f \sin(ω_f \cdot t)$
 #
 ωN = sqrt(k/m)
 ωf = ωN * 2
