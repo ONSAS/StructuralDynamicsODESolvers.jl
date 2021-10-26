@@ -101,7 +101,7 @@ end
     # solve using Trapezoidal scheme
     sol = solve(prob, alg, T=2.0)
 
-    # FIXME review tests
+    # FIXME update tests
     sol.U[end] ≈ [0.001888137400895257, -0.17208311613153432]
     sol.U′[end] ≈ [-0.07080458802627602, 0.14912664021827504]
     sol.U′′[end] ≈ [6.0851727632872485, -6.18000018114007]
@@ -118,4 +118,6 @@ end
 
     # solve
     sol = solve(prob, alg, T=2.0)
+
+    # FIXME update tests
 end
