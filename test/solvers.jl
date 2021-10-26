@@ -106,3 +106,16 @@ end
     sol.U′[end] ≈ [-0.07080458802627602, 0.14912664021827504]
     sol.U′′[end] ≈ [6.0851727632872485, -6.18000018114007]
 end
+
+@testset "Nonlinear Central difference method: Von Mises Truss" begin
+
+    # load model
+    prob = von_mises_truss()
+
+    # algorithm parameters
+    Δt = 0.000025
+    alg = CentralDifference(Δt=Δt)
+
+    # solve
+    sol = solve(prob, alg, T=2.0)
+end
