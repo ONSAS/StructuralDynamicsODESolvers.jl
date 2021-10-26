@@ -114,29 +114,24 @@ function _solve(alg::Newmark{N},
     return _build_solution(alg, U, U′, U′′, NSTEPS)
 end
 
-# case with possibly non-constant fint(x) term
+# case with possibly non-constant fi(x) term
 function _solve(alg::Newmark{N},
                 ivp::InitialValueProblem{ST, XT},
-                NSTEPS::Int,
+                NSTEPS::Int;
                 reltol=1e-6,
                 maxiter=10,
-                t0=zero(N)) where {N, VT, ST<:SecondOrderContinuousSystem, XT<:Tuple{VT, VT}}
+                t0=zero(N), kwargs...) where {N, VT, ST<:SecondOrderContinuousSystem, XT<:Tuple{VT, VT}}
 
-    println("reltol = $reltol")
-#function solve(problema::ProblemaNoLineal, alg::Newmark,
-#               t0, tf, u0, v0;
-#               reltol = 1e-6,  # tolerancia relativa en los desplazamientos
-#               maxiter = 10)   # maximo numero de iteraciones
-
+    Δt = alg.Δt
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)
 
     IMAX = NSTEPS + 1
-    @unpack M, C, Fint, Fext = sys
+    @unpack M, C, fi, fe = sys
 
     # initial acceleration, obtained from the equilibrium
     # condition Mu'' + Cu' + fint(u) = fext(t), at time t = t0
-    U₀′′ = M \ (Fext(t0) - C * U₀′ - Fint(U₀))
+    U₀′′ = M \ (fe(t0) - C * U₀′ - fi(U₀))
 
     # integration constants
     a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇ = _init(alg)
@@ -150,7 +145,7 @@ function _solve(alg::Newmark{N},
     U′′[1] = U₀′′
 
     # tangent matrix function
-    KT(x) = ForwardDiff.jacobian(Fint, x)
+    KT(x) = ForwardDiff.jacobian(fi, x)
 
     # times vector
     tvec = Vector{N}(undef, IMAX)
@@ -169,7 +164,7 @@ function _solve(alg::Newmark{N},
             # calculate effective loads
             mᵢ = M * (a₀ * U[i] + a₂ * U′[i] + a₃ * U′′[i])
             cᵢ = C * (a₁ * U[i] + a₄ * U′[i] + a₅ * U′′[i])
-            Feff = Fext(tvec[i] + Δt) + mᵢ + cᵢ - Fint(uktdt) - (a₀*M + a₁*C) * utdt
+            Feff = fe(tvec[i] + Δt) + mᵢ + cᵢ - fi(utdt) - (a₀*M + a₁*C) * utdt
             Keff = KT(utdt) + a₀ * M + a₁ * C
 
             # solve for displacements
@@ -177,7 +172,7 @@ function _solve(alg::Newmark{N},
             utdt += du
 
             # TODO change stopping criterion
-            Ferr = norm(Feff) / norm(Fext(t[k]+Δt))
+            Ferr = norm(Feff) / norm(fe(tvec[i] + Δt))
 
             j += 1
         end

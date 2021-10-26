@@ -145,12 +145,9 @@ A solution structure (`Solution`) that holds the result and the algorithm used
 to obtain it.
 """
 function solve(ivp::IVP{<:AbstractContinuousSystem}, alg::AbstractSolver, args...; kwargs...)
-    return solve!(init(ivp, alg, args...; kwargs...))
-end
-
-# internal defs
-function solve!(prob::StructuralDynamicsProblem)
-    return _solve(prob.alg, prob.ivp, prob.NSTEPS)
+    sdprob = init(ivp, alg, args...; kwargs...)
+    println(sdprob)
+    return _solve(sdprob.alg, sdprob.ivp, sdprob.NSTEPS; kwargs...)
 end
 
 const SOACS = SecondOrderConstrainedLinearControlContinuousSystem
