@@ -75,7 +75,7 @@ end
 
 function _solve(alg::Newmark{N},
                 ivp::InitialValueProblem{ST, XT},
-                NSTEPS::Int) where {N, VT, ST, XT<:Tuple{VT, VT}}
+                NSTEPS::Int; kwargs...) where {N, VT, ST, XT<:Tuple{VT, VT}}
 
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)
@@ -114,7 +114,7 @@ function _solve(alg::Newmark{N},
     return _build_solution(alg, U, U′, U′′, NSTEPS)
 end
 
-# case with possibly non-constant fi(x) term
+# case with possibly non-linear fi(x) term, uses N-R iteration scheme
 function _solve(alg::Newmark{N},
                 ivp::InitialValueProblem{ST, XT},
                 NSTEPS::Int;
@@ -151,7 +151,7 @@ function _solve(alg::Newmark{N},
     tvec = Vector{N}(undef, IMAX)
     tvec[1] = t0
 
-    # iteration counter
+    # time step index
     i = 1
 
     while i <= NSTEPS
@@ -159,19 +159,21 @@ function _solve(alg::Newmark{N},
         Ferr = +Inf
         utdt = U[i]
 
-        # iteracion tipo Newton-Rapshon para equilibrio en t+Dt
+        # Newton-Raphson iteration for equilibrium at t + Δt
         while (j < maxiter) && (Ferr > reltol)
+
             # calculate effective loads
             mᵢ = M * (a₀ * U[i] + a₂ * U′[i] + a₃ * U′′[i])
             cᵢ = C * (a₁ * U[i] + a₄ * U′[i] + a₅ * U′′[i])
-            Feff = fe(tvec[i] + Δt) + mᵢ + cᵢ - fi(utdt) - (a₀*M + a₁*C) * utdt
-            Keff = KT(utdt) + a₀ * M + a₁ * C
+            q = a₀*M + a₁*C
+            Feff = fe(tvec[i] + Δt) + mᵢ + cᵢ - fi(utdt) - q * utdt
+            Keff = KT(utdt) + q
 
             # solve for displacements
             du = Keff \ Feff
             utdt += du
 
-            # TODO change stopping criterion
+            # update stopping criterion
             Ferr = norm(Feff) / norm(fe(tvec[i] + Δt))
 
             j += 1
@@ -183,8 +185,8 @@ function _solve(alg::Newmark{N},
         end
 
         U[i+1]   = utdt
-        U′′[i+1] = a₀*(U[i+1] - U[i]) - a₂* U′[i] - a₃ * U′′[i]
-        U′[i+1]  = U′[i] + a₆*U′′[i] + a₇*U′′[i+1]
+        U′′[i+1] = a₀ * (U[i+1] - U[i]) - a₂ * U′[i] - a₃ * U′′[i]
+        U′[i+1]  = U′[i] + a₆ * U′′[i] + a₇ * U′′[i+1]
 
         tvec[i+1] = tvec[i] + Δt
         i += 1

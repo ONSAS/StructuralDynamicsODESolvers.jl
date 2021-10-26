@@ -65,5 +65,23 @@ end
 
     # relative error at node 1 verification
     analyticVal = U(testΔt)
-    @test ( abs( sol[13][1] - analyticVal ) / abs( analyticVal ) ) < 5e-3
+    @test (abs(sol[13][1] - analyticVal) / abs(analyticVal)) < 5e-3
+end
+
+@testset "Nonlinear Newmark method: Pendulum" begin
+
+    # load model
+    prob = pendulum_nonlinear()
+
+    # solve using Trapezoidal scheme
+    α = 1/4
+    δ = 1/2
+    Δt = 0.01
+    alg = Newmark(Δt=Δt, α=α, δ=δ)
+
+    sol = solve(prob, alg, T=3.0)
+
+    @test sol.U[end] ≈ [1.9113595927872666, 1.410419996390988]
+    @test sol.U′[end] ≈ [1.0007721533056833, 3.2500475651804632]
+    @test sol.U′′[end] ≈ [-8.286971439792033, -7.2537920159991955]
 end

@@ -146,7 +146,6 @@ to obtain it.
 """
 function solve(ivp::IVP{<:AbstractContinuousSystem}, alg::AbstractSolver, args...; kwargs...)
     sdprob = init(ivp, alg, args...; kwargs...)
-    println(sdprob)
     return _solve(sdprob.alg, sdprob.ivp, sdprob.NSTEPS; kwargs...)
 end
 
