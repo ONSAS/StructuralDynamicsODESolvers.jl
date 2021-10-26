@@ -87,8 +87,8 @@ function heat_transfer(; nelem=3)
 
     # build initial state
     U₀ = zeros(2)
-    for j=1:(nelem+1-2)
-      U₀[j] =  sin( pi*lelem*j ) + 0.5 * sin( 3.0*pi*lelem*j )
+    for j = 1:(nelem+1-2)
+        U₀[j] =  sin( pi*lelem*j ) + 0.5 * sin( 3.0*pi*lelem*j )
     end
 
     # analytic solution (node 1)
@@ -98,4 +98,107 @@ function heat_transfer(; nelem=3)
 
     # here the velocity condition U₀′ is ignored
     return InitialValueProblem(sys, (U₀, U₀)), U
+end
+
+# ---------------------------------------------------------
+# Non-linear pendulum model
+# ---------------------------------------------------------
+function pendulum_nonlinear()
+    # ========================
+    # Model definition
+    # ========================
+
+    # bar length
+    L = 2.0 # [m]
+
+    # cross section area
+    ϕ = 0.01 # [m]
+    A = (π * ϕ^2/4) # [m^2]
+
+    # Young's modulus (Steel)
+    E = 210e9 # [Pa]
+
+    # mass (lumped)
+    m = 214 # [kg]
+
+    # damping
+    c = 0 # [kg/s]
+
+    # gravity
+    g = 9.81; # [m/s^2]
+
+    # ============================
+    # Finite element model
+    # ============================
+
+    # u = [u_1, u_2]^T is the position of the mass, with the origin as indicated:
+    #                     _______
+    #                        |
+    #                        |
+    #                        |
+    #                        o    << origin
+
+    # internal forces field
+    daux(u) = u[1]^2 - 2*L*u[2] + u[2]^2
+    Fint(u) = E*A*L*daux(u)/2/L^4*[u[1], -(L-u[2])]
+
+    # external forces field
+    Fext(t) = [0, -m*g] # [N]
+
+    # lumped mass matrix
+    M = [m 0; 0. m]
+
+    # damping matrix
+    C = [c 0; 0. c]
+
+    # ===================================
+    # Initial conditions for simulation
+    # ===================================
+
+    u0 = [L, L]
+    v0 = [0, 0.]
+
+    sys = SecondOrderContinuousSystem(M, C, Fint, Fext)
+    prob = InitialValueProblem(sys, (u0, v0))
+
+    return prob
+end
+
+# ---------------------------------------------------------
+# Von Mises truss (cercha de Von Mises)
+# ---------------------------------------------------------
+function von_mises_truss()
+    # structural parameters
+    ρ = 7850               # [kg/m^3] (steel)
+    Lx = .374/2
+    Lz = sqrt(.205^2 - Lx^2) # [m]
+    l0 = sqrt(Lx^2 + Lz^2) # [m]
+    Lc = .240              # [m]
+    Ic = .0254*.0032^3/12  # [m^4]
+    Ac = .0254*.0032       # [m^2]
+    E  = 200e9             # [Pa] (steel)
+    kc = 3*E*Ic/Lc^3       # [N/m]
+    mb = l0*Ac*ρ           # [kg]
+    m  = 1.4               # kg (pandeo incipiente en 1.4)
+    c  = 2                 # [kg/s] (amortiguamiento por friccion juntas y arrastre pesa)
+    g  = 9.81              # [m/s^2]
+
+    # internal forces vector
+    Fint(u) = E*Ac*l0*(u[1]^2+u[2]^2-2*Lx*u[1]+2*Lz*u[2])/2/l0^4*[-Lx+u[1], Lz+u[2]] + [kc*u[1], 0]
+
+    # external forces vector
+    Fext(t) = [0, -(m+mb)/2*g] # [N]
+
+    # mass matrix (lumped)
+    M = [mb 0; 0 (mb+m)/2]
+
+    # damping matrix
+    C = [c/10 0; 0 c]
+
+    # initial conditions for simulation
+    u0 = [0, 0.]
+    v0 = [0, 0.]
+
+    sys = SecondOrderContinuousSystem(M, C, Fint, Fext)
+    prob = InitialValueProblem(sys, (u0, v0))
 end
