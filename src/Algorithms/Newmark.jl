@@ -208,11 +208,7 @@ function _solve_statistics(alg::Newmark{N},
     a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
     K̂⁻¹ = factorize(K̂)
 
-    # initialize displacements, velocities and accelerations
-    #U = Vector{VT}(undef, IMAX)
-    #U′ = Vector{VT}(undef, IMAX)
-    #U′′ = Vector{VT}(undef, IMAX)
-
+    # preallocate displacements, velocities and accelerations
     m = size(M, 1)
     U = [VT(undef, m) for _ in 1:IMAX]
     U′ = [VT(undef, m) for _ in 1:IMAX]
