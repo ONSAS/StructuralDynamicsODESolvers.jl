@@ -5,6 +5,7 @@ include("init.jl")
 
 # User API
 include("interface.jl")
+include("iteration.jl")
 
 # Available algorithms
 include("Algorithms/Bathe.jl")

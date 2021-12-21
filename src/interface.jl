@@ -18,7 +18,7 @@ Return the step size of the given algorithm.
 
 The step size of the algorithm, or `nothing` if the step-size is not fixed.
 """
-step_size(alg::AbstractSolver) = nothing
+step_size(alg::AbstractSolver) = alg.Δt
 
 """
     AbstractSolution
@@ -157,13 +157,9 @@ Solve an initial-value problem.
 A solution structure (`Solution`) that holds the result and the algorithm used
 to obtain it.
 """
-function solve(ivp::IVP{<:AbstractContinuousSystem}, alg::AbstractSolver, args...; NSTEPS, kwargs...)
-    return solve!(init(ivp, alg, args...; NSTEPS=NSTEPS, kwargs...))
-end
-
-# internal defs
-function solve!(prob::StructuralDynamicsProblem)
-    return _solve(prob.alg, prob.ivp, prob.NSTEPS)
+function solve(ivp::IVP{<:AbstractContinuousSystem}, alg::AbstractSolver, args...; kwargs...)
+    sdprob = init(ivp, alg, args...; kwargs...)
+    return _solve(sdprob.alg, sdprob.ivp, sdprob.NSTEPS; kwargs...)
 end
 
 const SOACS = SecondOrderConstrainedLinearControlContinuousSystem
@@ -171,10 +167,28 @@ const SOCLCCS  = SecondOrderConstrainedLinearControlContinuousSystem
 
 function init(ivp::InitialValueProblem{ST, XT},
               alg::AbstractSolver;
-              NSTEPS) where {N, VT,
+              kwargs...) where {N, VT,
                              ST, # FIXME restrict to SOACS and SOCLCCS
                              XT<:Tuple{VT, VT}}
 
+    if haskey(kwargs, :NSTEPS)
+        NSTEPS = kwargs[:NSTEPS]
+    elseif haskey(kwargs, :T) || haskey(kwargs, :finalTime)
+        Δt = step_size(alg)
+        if haskey(kwargs, :T)
+            NSTEPS = ceil(Int, kwargs[:T] / Δt)
+        else haskey(kwargs, :finalTime)
+            NSTEPS = ceil(Int, kwargs[:finalTime] / Δt)
+        end
+    elseif haskey(kwargs, :tspan)
+        Δt = step_size(alg)
+        tsp = kwargs[:tspan]
+        @assert iszero(tsp[1]) "expected that the initial time is zero, got $(tsp[1])"
+        T = tsp[2]
+        NSTEPS = ceil(Int, T / Δt)
+    else
+        throw(ArgumentError("please define `NSTEPS`, `T`, `finalTime` or `tspan`"))
+    end
     return StructuralDynamicsProblem(alg, ivp, NSTEPS)
 end
 
@@ -231,7 +245,7 @@ function _check_vars(vars)
 end
 
 # plot displacements of the solution for the given vars tuple, eg. vars=(0, 1) for x1(t) vs t
-@recipe function plot_solution(sol::Solution; vars=nothing)
+@recipe function plot_solution(sol::Solution; vars=nothing, func=displacements)
 
    seriestype -->  :path # :scatter
    markershape --> :circle
@@ -240,11 +254,11 @@ end
 
    if vars[1] == 0 && vars[2] != 0
        x = times(sol)
-       y = displacements(sol, vars[2])
+       y = func(sol, vars[2])
        x, y
     else
-       x = displacements(sol, vars[1])
-       y = displacements(sol, vars[2])
+       x = func(sol, vars[1])
+       y = func(sol, vars[2])
     end
     return x, y
 end
