@@ -82,7 +82,8 @@ function _solve(alg::Newmark{N},
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
 
-    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
+    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇ = _init(alg)
+    K̂ = K + a₀ * M + a₁ * C
     K̂⁻¹ = factorize(K̂)
 
     # initialize displacements, velocities and accelerations
@@ -134,7 +135,7 @@ function _solve(alg::Newmark{N},
 
     # integration constants
     a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇ = _init(alg)
-
+    
     # initialize displacements, velocities and accelerations
     U = Vector{VT}(undef, IMAX)
     U′ = Vector{VT}(undef, IMAX)
@@ -205,7 +206,8 @@ function _solve_statistics(alg::Newmark{N},
 
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
-    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇, K̂ = _init(alg, M, C, K)
+    a₀, a₁, a₂, a₃, a₄, a₅, a₆, a₇ = _init(alg)
+    K̂ = K + a₀ * M + a₁ * C      
     K̂⁻¹ = factorize(K̂)
 
     # preallocate displacements, velocities and accelerations
