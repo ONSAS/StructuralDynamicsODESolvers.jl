@@ -117,6 +117,19 @@ Return the vector of times of the given solution.
 """
 times(sol::Solution) = sol.t
 
+struct SolutionExtrema{T<:AbstractSolver, VT, ST, DT, RT} <: AbstractSolution
+    alg::T
+    U_min::VT
+    U_max::VT
+    U′_min::VT
+    U′_max::VT
+    idx::Int
+    hist::DT
+    times::RT
+    t::ST
+end
+
+
 # ===============
 # Problem types
 # ===============
