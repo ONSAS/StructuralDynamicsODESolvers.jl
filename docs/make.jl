@@ -9,8 +9,12 @@ DocMeta.setdocmeta!(StructuralDynamicsODESolvers,
 # generate Literate documentation
 include("generate.jl")
 
-makedocs(; format=Documenter.HTML(; prettyurls=haskey(ENV, "GITHUB_ACTIONS"),  # disable for local builds
-                                  collapselevel=1),
+makedocs(;
+         format=Documenter.HTML(;
+                                prettyurls=get(ENV, "CI", "false") == "true",
+                                canonical="https://ONSAS.github.io/StructuralDynamicsODESolvers.jl",
+                                edit_link="master",
+                                assets=String[]),
          sitename="StructuralDynamicsODESolvers.jl",
          pages=["Home" => "index.md",
                 "Algorithms" => Any["First-order problems" => "lib/first_order.md",
