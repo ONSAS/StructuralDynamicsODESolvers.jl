@@ -12,8 +12,6 @@ include("generate.jl")
 makedocs(; format=Documenter.HTML(; prettyurls=haskey(ENV, "GITHUB_ACTIONS"),  # disable for local builds
                                   collapselevel=1),
          sitename="StructuralDynamicsODESolvers.jl",
-         doctest=false,
-         strict=false,
          pages=["Home" => "index.md",
                 "Algorithms" => Any["First-order problems" => "lib/first_order.md",
                                     "Second-order problems" => "lib/second_order.md"],

@@ -27,3 +27,6 @@ docs/site/
 test/models/
 
 .ipynb_checkpoints
+
+#IDEs 
+.vscode
