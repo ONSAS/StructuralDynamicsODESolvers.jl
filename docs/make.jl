@@ -1,20 +1,13 @@
-ENV["GKSwstype"] = "100"  # set 'GR environment' to 'no output' (for Travis CI)
 using Documenter, StructuralDynamicsODESolvers
 
-DocMeta.setdocmeta!(StructuralDynamicsODESolvers,
-                    :DocTestSetup,
-                    :(using StructuralDynamicsODESolvers);
-                    recursive=true,)
+DocMeta.setdocmeta!(StructuralDynamicsODESolvers, :DocTestSetup,
+                    :(using StructuralDynamicsODESolvers); recursive=true)
 
 # generate Literate documentation
 include("generate.jl")
 
-makedocs(;
-         format=Documenter.HTML(;
-                                prettyurls=get(ENV, "CI", "false") == "true",
-                                canonical="https://ONSAS.github.io/StructuralDynamicsODESolvers.jl",
-                                edit_link="master",
-                                assets=String[]),
+makedocs(; format=Documenter.HTML(; prettyurls=haskey(ENV, "GITHUB_ACTIONS"),  # disable for local builds
+                                  collapselevel=1),
          sitename="StructuralDynamicsODESolvers.jl",
          pages=["Home" => "index.md",
                 "Algorithms" => Any["First-order problems" => "lib/first_order.md",
@@ -26,6 +19,5 @@ makedocs(;
                 "References" => "references.md",
                 "About" => "about.md"])
 
-# Deploy built documentation from Travis.
 deploydocs(; repo="github.com/ONSAS/StructuralDynamicsODESolvers.jl.git",
            push_preview=true)
