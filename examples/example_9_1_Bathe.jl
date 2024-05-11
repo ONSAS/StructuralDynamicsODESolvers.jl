@@ -1,8 +1,5 @@
 # # Example (Ch. 9 Bathe)
 
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/example_9_1_Bathe.ipynb)
-#
-
 # The example considered next can be found in Chapter 9 of [[BATHE]](@ref).
 
 using StructuralDynamicsODESolvers, Plots

@@ -1,8 +1,5 @@
 # # Mass dashpot spring
 
-#md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/massDashpotSpring.ipynb)
-#
-
 # ## Free oscillations
 
 using StructuralDynamicsODESolvers, Plots, LinearAlgebra
