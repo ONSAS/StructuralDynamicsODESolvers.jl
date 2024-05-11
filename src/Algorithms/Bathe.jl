@@ -25,15 +25,15 @@ function _init(alg::Bathe, M, C, K)
     Δt = alg.Δt
 
     # compute integration constants
-    ξ = 1/Δt
-    ξ² = ξ*ξ
-    a₀ = 16*ξ²
-    a₁ = 4*ξ
-    a₂ = 9*ξ²
-    a₃ = 3*ξ
-    a₄ = 2*a₁
-    a₅ = 12*ξ²
-    a₆ = -3*ξ²
+    ξ = 1 / Δt
+    ξ² = ξ * ξ
+    a₀ = 16 * ξ²
+    a₁ = 4 * ξ
+    a₂ = 9 * ξ²
+    a₃ = 3 * ξ
+    a₄ = 2 * a₁
+    a₅ = 12 * ξ²
+    a₆ = -3 * ξ²
     a₇ = -ξ
 
     K̂₁ = K + a₀ * M + a₁ * C
@@ -44,9 +44,9 @@ end
 # a comment about notation: variables with superscript `+` correspond to
 # evaluation at intermediate times, i.e. t + Δt/2
 function _solve(alg::Bathe{N},
-                ivp::InitialValueProblem{ST, XT},
-                NSTEPS::Int; kwargs...) where {N, VT, ST, XT<:Tuple{VT, VT}}
-
+                ivp::InitialValueProblem{ST,XT},
+                NSTEPS::Int;
+                kwargs...,) where {N,VT,ST,XT<:Tuple{VT,VT}}
     sys = system(ivp)
     (U₀, U₀′) = initial_state(ivp)
 
@@ -74,7 +74,7 @@ function _solve(alg::Bathe{N},
         # calculate effective loads at time t + Δt/2
         mᵢ = M * (a₀ * U[i] + a₄ * U′[i] + U′′[i])
         cᵢ = C * (a₁ * U[i] + U′[i])
-        Rᵢ⁺ = (R[i] + R[i+1])/2
+        Rᵢ⁺ = (R[i] + R[i + 1]) / 2
         R̂ᵢ⁺ = Rᵢ⁺ + mᵢ + cᵢ
 
         # solve for displacements at time t + Δt/2
@@ -90,20 +90,20 @@ function _solve(alg::Bathe{N},
         # calculate effective loads at time t + Δt
         mᵢ = M * (a₅ * Uᵢ⁺ + a₆ * U[i] + a₁ * U′ᵢ⁺ + a₇ * U′[i])
         cᵢ = C * (a₁ * Uᵢ⁺ + a₇ * U[i])
-        R̂ᵢ₊₁ = R[i+1] + mᵢ + cᵢ
+        R̂ᵢ₊₁ = R[i + 1] + mᵢ + cᵢ
 
         # solve for displacements at time t + Δt
-        U[i+1] = K̂₂⁻¹ \ R̂ᵢ₊₁
+        U[i + 1] = K̂₂⁻¹ \ R̂ᵢ₊₁
 
         # calculate velocities and accelerations at time t + Δt
-        U′[i+1] = -a₇ * U[i] - a₁ * Uᵢ⁺ + a₃ * U[i+1]
-        U′′[i+1] = -a₇ * U′[i] - a₁ * U′ᵢ⁺ + a₃ * U′[i+1]
+        U′[i + 1] = -a₇ * U[i] - a₁ * Uᵢ⁺ + a₃ * U[i + 1]
+        U′′[i + 1] = -a₇ * U′[i] - a₁ * U′ᵢ⁺ + a₃ * U′[i + 1]
     end
 
     return _build_solution(alg, U, U′, U′′, NSTEPS)
 end
 
 function _build_solution(alg::Bathe{N}, U, U′, U′′, NSTEPS) where {N}
-    t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
+    t = range(zero(N); step=alg.Δt, length=(NSTEPS + 1))
     return Solution(alg, U, U′, U′′, t)
 end

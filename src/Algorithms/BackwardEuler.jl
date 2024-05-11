@@ -12,7 +12,7 @@ struct BackwardEuler{N} <: AbstractSolver
     Δt::N
 end
 
-BackwardEuler(; Δt::N) where N = BackwardEuler(Δt)
+BackwardEuler(; Δt::N) where {N} = BackwardEuler(Δt)
 
 function _init(alg::BackwardEuler, M, C, K)
     Δt = alg.Δt
@@ -21,16 +21,17 @@ function _init(alg::BackwardEuler, M, C, K)
 end
 
 function _solve(alg::BackwardEuler{N},
-                ivp::InitialValueProblem{ST, XT},
-                NSTEPS::Int; kwargs...) where {N, VT, ST, XT<:Tuple{VT, VT}}
-
+                ivp::InitialValueProblem{ST,XT},
+                NSTEPS::Int;
+                kwargs...,) where {N,VT,ST,XT<:Tuple{VT,VT}}
     sys = system(ivp)
     (U₀, _) = initial_state(ivp)
 
     IMAX = NSTEPS + 1
     M, C, K, R = _unwrap(sys, IMAX)
 
-    iszero(M) || throw(ArgumentError("this method assumes that the system is of first order"))
+    iszero(M) ||
+        throw(ArgumentError("this method assumes that the system is of first order"))
 
     K̂ = _init(alg, M, C, K)
     K̂⁻¹ = factorize(K̂)
@@ -42,15 +43,15 @@ function _solve(alg::BackwardEuler{N},
     Δt = alg.Δt
 
     @inbounds for i in 1:NSTEPS
-        R̂ᵢ₊₁ = R[i+1] * Δt + C*U[i]
+        R̂ᵢ₊₁ = R[i + 1] * Δt + C * U[i]
         # solve
-        U[i+1] = K̂⁻¹ \ R̂ᵢ₊₁
+        U[i + 1] = K̂⁻¹ \ R̂ᵢ₊₁
     end
 
     return _build_solution(alg, U, NSTEPS)
 end
 
 function _build_solution(alg::BackwardEuler{N}, U, NSTEPS) where {N}
-    t = range(zero(N), step=alg.Δt, length=(NSTEPS+1))
+    t = range(zero(N); step=alg.Δt, length=(NSTEPS + 1))
     return Solution(alg, U, t)
 end

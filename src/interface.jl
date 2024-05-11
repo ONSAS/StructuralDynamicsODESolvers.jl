@@ -38,7 +38,7 @@ abstract type AbstractSolution end
 - `U′′` -- accelerations
 - `t`   -- vector of time values
 """
-struct Solution{T<:AbstractSolver, UT, VT, AT, ST} <: AbstractSolution
+struct Solution{T<:AbstractSolver,UT,VT,AT,ST} <: AbstractSolution
     alg::T
     U::UT
     U′::VT
@@ -69,7 +69,8 @@ displacements(sol::Solution) = sol.U
 Return the vector of displacements of the given solution along coordinate `i`.
 """
 function displacements(sol::Solution, i::Int)
-    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    1 ≤ i ≤ dim(sol) ||
+        throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
     U = displacements(sol)
     return [u[i] for u in U]
 end
@@ -87,7 +88,8 @@ velocities(sol::Solution) = sol.U′
 Return the vector of velocities of the given solution along coordinate `i`.
 """
 function velocities(sol::Solution, i::Int)
-    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    1 ≤ i ≤ dim(sol) ||
+        throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
     U′ = velocities(sol)
     return [u′[i] for u′ in U′]
 end
@@ -105,7 +107,8 @@ accelerations(sol::Solution) = sol.U′′
 Return the vector of accelerations of the given solution along coordinate `i`.
 """
 function accelerations(sol::Solution, i::Int)
-    1 ≤ i ≤ dim(sol) || throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
+    1 ≤ i ≤ dim(sol) ||
+        throw(ArgumentError("expected the coordinate to be between 1 and $(dim(sol)), got $i"))
     U′′ = accelerations(sol)
     return [u′′[i] for u′′ in U′′]
 end
@@ -117,7 +120,7 @@ Return the vector of times of the given solution.
 """
 times(sol::Solution) = sol.t
 
-struct SolutionExtrema{T<:AbstractSolver, VT, ST, DT, RT} <: AbstractSolution
+struct SolutionExtrema{T<:AbstractSolver,VT,ST,DT,RT} <: AbstractSolution
     alg::T
     U_min::VT
     U_max::VT
@@ -129,14 +132,13 @@ struct SolutionExtrema{T<:AbstractSolver, VT, ST, DT, RT} <: AbstractSolution
     t::ST
 end
 
-
 # ===============
 # Problem types
 # ===============
 
 abstract type AbstractProblem end
 
-struct StructuralDynamicsProblem{T, PT} <: AbstractProblem
+struct StructuralDynamicsProblem{T,PT} <: AbstractProblem
     alg::T
     ivp::PT
     NSTEPS::Int
@@ -157,27 +159,30 @@ Solve an initial-value problem.
 A solution structure (`Solution`) that holds the result and the algorithm used
 to obtain it.
 """
-function solve(ivp::IVP{<:AbstractContinuousSystem}, alg::AbstractSolver, args...; kwargs...)
+function solve(ivp::IVP{<:AbstractContinuousSystem},
+               alg::AbstractSolver,
+               args...;
+               kwargs...,)
     sdprob = init(ivp, alg, args...; kwargs...)
     return _solve(sdprob.alg, sdprob.ivp, sdprob.NSTEPS; kwargs...)
 end
 
 const SOACS = SecondOrderConstrainedLinearControlContinuousSystem
-const SOCLCCS  = SecondOrderConstrainedLinearControlContinuousSystem
+const SOCLCCS = SecondOrderConstrainedLinearControlContinuousSystem
 
-function init(ivp::InitialValueProblem{ST, XT},
+function init(ivp::InitialValueProblem{ST,XT},
               alg::AbstractSolver;
-              kwargs...) where {N, VT,
-                             ST, # FIXME restrict to SOACS and SOCLCCS
-                             XT<:Tuple{VT, VT}}
-
+              kwargs...,) where {VT,
+                                 ST, # FIXME restrict to SOACS and SOCLCCS
+                                 XT<:Tuple{VT,VT}}
     if haskey(kwargs, :NSTEPS)
         NSTEPS = kwargs[:NSTEPS]
     elseif haskey(kwargs, :T) || haskey(kwargs, :finalTime)
         Δt = step_size(alg)
         if haskey(kwargs, :T)
             NSTEPS = ceil(Int, kwargs[:T] / Δt)
-        else haskey(kwargs, :finalTime)
+        else
+            haskey(kwargs, :finalTime)
             NSTEPS = ceil(Int, kwargs[:finalTime] / Δt)
         end
     elseif haskey(kwargs, :tspan)
@@ -198,15 +203,17 @@ function _init_input(R::AbstractVector{N}, IMAX) where {N<:Number}
 end
 
 # no-op, checking that the number of forcing terms has the correct length
-function _init_input(R::AbstractVector{VT}, IMAX) where {N, VT<:AbstractVector{N}}
+function _init_input(R::AbstractVector{VT}, IMAX) where {N,VT<:AbstractVector{N}}
     @assert length(R) == IMAX "expected the forcing term to be an array of length $IMAX, got $(length(R))"
     return R
 end
 
 # TODO dispatch on B (eg. IdentityMultiple)
-function _init_input(R::AbstractVector{VT}, B::AbstractMatrix, IMAX) where {N, VT<:AbstractVector{N}}
+function _init_input(R::AbstractVector{VT},
+                     B::AbstractMatrix,
+                     IMAX) where {N,VT<:AbstractVector{N}}
     @assert length(R) == IMAX "expected the forcing term to be an array of length $IMAX, got $(length(R))"
-    return [B*Ri for Ri in R]
+    return [B * Ri for Ri in R]
 end
 
 # unwrap a second order system into its each component
@@ -236,8 +243,8 @@ end
 function _check_vars(vars)
     if vars == nothing
         throw(ArgumentError("default ploting variables not implemented yet; you need " *
-              "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
-              "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
+                            "to pass the `vars=(...)` option, e.g. `vars=(0, 1)` to plot variable with " *
+                            "index 1 vs. time, or `vars=(1, 2)` to plot variable with index 2 vs. variable with index 1`"))
     end
     D = length(vars)
     @assert (D == 1) || (D == 2) "can only plot in one or two dimensions, " *
@@ -246,19 +253,18 @@ end
 
 # plot displacements of the solution for the given vars tuple, eg. vars=(0, 1) for x1(t) vs t
 @recipe function plot_solution(sol::Solution; vars=nothing, func=displacements)
+    seriestype --> :path # :scatter
+    markershape --> :circle
 
-   seriestype -->  :path # :scatter
-   markershape --> :circle
+    _check_vars(vars)
 
-   _check_vars(vars)
-
-   if vars[1] == 0 && vars[2] != 0
-       x = times(sol)
-       y = func(sol, vars[2])
-       x, y
+    if vars[1] == 0 && vars[2] != 0
+        x = times(sol)
+        y = func(sol, vars[2])
+        x, y
     else
-       x = func(sol, vars[1])
-       y = func(sol, vars[2])
+        x = func(sol, vars[1])
+        y = func(sol, vars[2])
     end
     return x, y
 end

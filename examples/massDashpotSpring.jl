@@ -3,14 +3,15 @@
 #md # [![](https://img.shields.io/badge/show-nbviewer-579ACA.svg)](@__NBVIEWER_ROOT_URL__/models/massDashpotSpring.ipynb)
 #
 
-
-
 # ## Free oscillations
 
 using StructuralDynamicsODESolvers, Plots, LinearAlgebra
 
-k  = 2 ; m  = .5 ;  c = 0 ;
-u0 = 1 ; v0 = 0 ;
+k = 2;
+m = 0.5;
+c = 0;
+u0 = 1;
+v0 = 0;
 
 M = m * ones(1, 1)
 C = c * ones(1, 1)
@@ -19,44 +20,45 @@ R = zeros(1)
 
 sys = SecondOrderAffineContinuousSystem(M, C, K, R)
 
-U₀ = u0 * ones(1); V₀ = v0 * ones(1);
+U₀ = u0 * ones(1);
+V₀ = v0 * ones(1);
 
 ivp_free = InitialValueProblem(sys, (U₀, V₀))
 
-NSTEPS = 1000 ;
-Δt = 0.005 ;
+NSTEPS = 1000;
+Δt = 0.005;
 
 #-
 
-alg = Bathe(Δt = Δt )
-sol = solve(ivp_free, alg, NSTEPS=NSTEPS);
+alg = Bathe(; Δt=Δt)
+sol = solve(ivp_free, alg; NSTEPS=NSTEPS);
 
 #-
 
 # The following command is the same as `plot(times(sol), displacements(sol, 1))`.
 
-plot(sol, vars=(0, 1))
+plot(sol; vars=(0, 1))
 
 # ## Forced oscillations
 #
 # ### Problem definition
 # Let us consider now a forcing term $f(t) = A_f \sin(ω_f \cdot t)$
 #
-ωN = sqrt(k/m)
+ωN = sqrt(k / m)
 ωf = ωN * 2
 Af = 10.0
-R  = [ [ Af * sin(ωf * Δt * (i-1) ) ] for i in 1:NSTEPS+1];
+R = [[Af * sin(ωf * Δt * (i - 1))] for i in 1:(NSTEPS + 1)];
 
 # ### Second order problem resolution
 
-X   = nothing # state constraints are ignored
-B   = ones(1, 1)
+X = nothing # state constraints are ignored
+B = ones(1, 1)
 sys = SecondOrderConstrainedLinearControlContinuousSystem(M, C, K, B, X, R)
 
 ivp_forced_secOrder = InitialValueProblem(sys, (U₀, V₀))
 
-alg = Bathe(Δt = Δt )
-sol_secOrder = solve(ivp_forced_secOrder, alg, NSTEPS=NSTEPS);
+alg = Bathe(; Δt=Δt)
+sol_secOrder = solve(ivp_forced_secOrder, alg; NSTEPS=NSTEPS);
 
 # ### First order homogeneization formulation
 # The problem can be re-formulated as a first order and homogeneous one given by
@@ -78,29 +80,30 @@ sol_secOrder = solve(ivp_forced_secOrder, alg, NSTEPS=NSTEPS);
 # \textbf{x} = [ u, v, u_f, v_f ]^T
 # ```
 
-K = [     0 1     0 0 ;
-      -ωN^2 0     1/m 0 ;
-          0 0     0 1 ;
-          0 0 -ωf^2 0 ] ;
+K = [0 1 0 0
+     -ωN^2 0 1/m 0
+     0 0 0 1
+     0 0 -ωf^2 0];
 
 C = -Diagonal(ones(4))
-M = zeros(4,4)
+M = zeros(4, 4)
 R = zeros(4)
 
 sys = SecondOrderAffineContinuousSystem(M, C, K, R)
 
-U₀ = [u0; v0; 0; ωf*Af ] ;
+U₀ = [u0; v0; 0; ωf * Af];
 
-ivp_forced_firOrder = InitialValueProblem(sys, (U₀, U₀) )
+ivp_forced_firOrder = InitialValueProblem(sys, (U₀, U₀))
 
-alg = BackwardEuler(Δt = Δt )
-sol_firOrderA = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
+alg = BackwardEuler(; Δt=Δt)
+sol_firOrderA = solve(ivp_forced_firOrder, alg; NSTEPS=NSTEPS);
 
-NSTEPS = NSTEPS*3 ; alg = BackwardEuler(Δt = Δt/3.0 )
-sol_firOrderB = solve(ivp_forced_firOrder, alg, NSTEPS=NSTEPS);
+NSTEPS = NSTEPS * 3;
+alg = BackwardEuler(; Δt=Δt / 3.0);
+sol_firOrderB = solve(ivp_forced_firOrder, alg; NSTEPS=NSTEPS);
 
 # The solution obtained is
 
-plot(sol_secOrder, vars=(0, 1), xlab="time" )
-plot!(sol_firOrderA, vars=(0, 1))
-plot!(sol_firOrderB, vars=(0, 1))
+plot(sol_secOrder; vars=(0, 1), xlab="time")
+plot!(sol_firOrderA; vars=(0, 1))
+plot!(sol_firOrderB; vars=(0, 1))
