@@ -1,8 +1,8 @@
 @testset "Solve getter functions" begin
     ivp = harmonic_oscillator_free()
 
-    alg = Bathe(Δt = 0.1)
-    sol = solve(ivp, alg, NSTEPS=100)
+    alg = Bathe(; Δt=0.1)
+    sol = solve(ivp, alg; NSTEPS=100)
 
     @test dim(sol) == 1
 
@@ -22,18 +22,18 @@ end
 @testset "Solver options" begin
     ivp = harmonic_oscillator_free()
 
-    alg = Bathe(Δt = 0.1)
+    alg = Bathe(; Δt=0.1)
 
-    sol = solve(ivp, alg, NSTEPS=100)
+    sol = solve(ivp, alg; NSTEPS=100)
     @test times(sol)[end] == 10.0
 
-    sol = solve(ivp, alg, T=10.0)
+    sol = solve(ivp, alg; T=10.0)
     @test times(sol)[end] == 10.0
 
-    sol = solve(ivp, alg, tspan=(0.0, 10.0))
+    sol = solve(ivp, alg; tspan=(0.0, 10.0))
     @test times(sol)[end] == 10.0
 
-    sol = solve(ivp, alg, finalTime=10.0)
+    sol = solve(ivp, alg; finalTime=10.0)
     @test times(sol)[end] == 10.0
 
     # test unknown argument name

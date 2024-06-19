@@ -1,10 +1,5 @@
 using DocStringExtensions,
-      FillArrays,
-      ForwardDiff,
-      LinearAlgebra,
-      RecipesBase,
-      Reexport,
-      UnPack
+      FillArrays, ForwardDiff, LinearAlgebra, RecipesBase, Reexport, UnPack
 
 @reexport using MathematicalSystems
 
